@@ -1,0 +1,13 @@
+<!-- templates/admin/index.html -->
+
+{% extends "admin/index.html" %}
+
+{% block object-tools %}
+    {# Retain the default content for object-tools block #}
+    {{ block.super }}
+{% endblock %}
+
+{% block results %}
+    {# Retain the default content for results block #}
+    {{ block.super }}
+{% endblock %}

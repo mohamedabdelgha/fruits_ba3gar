@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static "css/main.css" %}">
+    <title>الصفحة الرئيسية</title>
+</head>
+<body>
+    <header>
+        <div class="main">
+            <i class="fa-solid fa-bars mainMenu" id="mainMenuBTN"></i>
+            <img src="{% static "images/logo.png" %}" alt="">
+            <h1>الصفحة الرئيسية</h1>
+        </div>
+        <div class="username">
+            <h2>مرحبـــــــًا   {{user.username}}<h2>
+                <a href="{% url "logout" %}"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+            </div>
+    </header>
+    <div id="menuBar">
+        <h2 class="menutitle">القائمة</h2>
+        <i id="closemenu" class="fa-solid fa-xmark close"></i>
+        <ul>
+            <a href="{% url "addcontainer" %}">
+                <li> اضافة نقلة</li>
+            </a>
+            <a href="{% url "selleraccounts" %}">
+                <li> حسابات البائعين</li>
+            </a>
+            <a href="{% url "suppliersaccounts" %}">
+                <li> حسابات العملاء</li>
+            </a>
+            <a href="{% url "profits" %}">
+                <li> اضافة تحصيل</li>
+            </a>
+            <a href="{% url "supplierprofits" %}">
+                <li> صرف نقدية</li>
+            </a>
+            <a href="{% url "daymoney" %}">
+                <li> تقفيل اليوم</li>
+            </a>
+            {%if user.first_name == 'adminName' %}
+            <a href="{% url "reports" %}">
+                <li> المسئول</li>
+            </a>
+            {% endif %}
+        </ul>
+    </div>
+    <section class="mainpage">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <img src="{% static "" %}images/login3.png">
+    </section>
+    <section class="secpage">
+        <div class="div2">
+            <h2> <i class="fa-solid fa-people-group"></i> حسابات البائعين</h2>
+            <div class="buttons">
+                <ul>
+                    <a href="{% url "profits" %}"><li>استلام تحصيل <i class="fa-solid fa-arrow-left"></i></li></a>
+                    <a href="{% url "selleraccounts" %}"><li>كشف حسابات البائعين <i class="fa-solid fa-arrow-left"></i></li></a>
+                    <a href="{% url "sellersort" %}"><li>اجمالى البائعين<i class="fa-solid fa-arrow-left"></i></li></a>
+                </ul>
+            </div>
+        </div>
+        <div class="div1">
+            <h2><i class="fa-solid fa-truck"></i>  تسجيل حركة البضاعة</h2>
+            <div class="buttons">
+                <ul>
+                    <a href="{% url "addcontainer" %}"><li>اضف نقلة<i class="fa-solid fa-arrow-left"></i></li></a>
+                    <a href="{% url "today" %}"><li>نقلات اليوم <i class="fa-solid fa-arrow-left"></i></li></a>
+                    <a href="{% url "remain" %}"><li>النقلات المتبقية <i class="fa-solid fa-arrow-left"></i></li></a>
+                    <a href="{% url "finished" %}"><li>النقلات المنتهية <i class="fa-solid fa-arrow-left"></i></li></a>
+                </ul>
+            </div>
+        </div>
+        <div class="div3">
+            <h2> <i class="fa-solid fa-people-roof"></i> حسابات العملاء</h2>
+            <div class="buttons">
+                <ul>
+                    <a href="{% url "supplierprofits" %}"><li>صرف نقدية <i class="fa-solid fa-arrow-left"></i></li></a>
+                    <a href="{% url "suppliersaccounts" %}"><li>كشف حسابات العملاء <i class="fa-solid fa-arrow-left"></i></li></a>
+                    <a href="{% url "suppliersort" %}"><li>اجمالى العملاء <i class="fa-solid fa-arrow-left"></i></li></a>
+                </ul>
+            </div>
+        </div>
+        <div class="div5">
+            <h2> <i class="fa-solid fa-circle-plus"></i> اضافات</h2>
+            <div class="buttons">
+                <ul>
+                    <a href="{% url "items" %}"><li>اضف صنف <i class="fa-solid fa-arrow-left"></i></li></a>
+                    <a href="{% url "loses" %}"><li>اضافة مصروف <i class="fa-solid fa-arrow-left"></i></li></a>
+                    {%if user.username != 'm'%}
+                    <a href="{% url "daymoney" %}"><li>تقفيل اليوم <i class="fa-solid fa-arrow-left"></i></li></a>
+                    {%endif%}
+                </ul>
+            </div>
+        </div>
+        {%if user.first_name == 'adminName' %}
+        <div class="admincon">
+            <div class="div1">
+                <h2> <i class="fa-solid fa-user-tie"></i>Tiger إدارة برنامج</h2>
+                <div class="buttons">
+                    <ul>
+                        <a href="{% url "reports" %}"><li>التقارير <i class="fa-solid fa-arrow-left"></i></li></a>
+                        <a href="{% url "workers" %}"><li>الموظفين<i class="fa-solid fa-arrow-left"></i></li></a>
+                    </ul>
+                </div>
+            </div>
+            <div class="div1">
+                <h2> <i class="fa-solid fa-user-tie"></i> الماليـــات</h2>
+                <div class="buttons">
+                    <ul>
+                        <a href="{% url "daymoney" %}"><li>تقفيل اليوم <i class="fa-solid fa-arrow-left"></i></li></a>
+                        <a href="{% url "monthmoney" %}"><li>تقفيل الشهر <i class="fa-solid fa-arrow-left"></i></li></a>
+                        <a href="{% url "wins" %}"><li>الارباح<i class="fa-solid fa-arrow-left"></i></li></a>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {%endif%}
+    </section>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <footer>
+        <div style="display: flex;align-items: center;">
+            <h2>TIGER TECH</h2>br
+            <img src="{% static "images/tigertech.png" %}" alt="">
+        </div>
+        <h2>Powered By : </h2>
+        <div class="link">
+            <a href="https://mohamedabdelgha.github.io/TigerTech/" target="_blank"> Tiger_tech.com  </a>
+            <h2> : قم بزيارتنا </h2><br>
+        </div>
+    </footer>
+
+    <script>
+        const mainMenuBTN = document.getElementById('mainMenuBTN')
+        const closemenu = document.getElementById('closemenu')
+        mainMenuBTN.addEventListener('click',()=>{
+            document.getElementById('menuBar').style.width='15%'
+        })
+        closemenu.addEventListener('click',()=>{
+            document.getElementById('menuBar').style.width='0'
+        })
+    </script>
+</body>
+</html>

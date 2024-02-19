@@ -1,0 +1,75 @@
+{% load static %}
+{% load i18n %}
+{% load arabic_numbers %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static "css/main.css" %}">
+    <title>كشف العملاء</title>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="mainnav">
+            <div class="main">
+                <img src="{% static "images/logo.png" %}" alt="">
+                <h1>الصفحة الرئيسية</h1>
+            </div>
+        </a>
+        <a href="{% url "home" %}"><i class="fa-solid fa-arrow-left"></i></a>
+    </header>
+        <div class="title">
+            <h1>جميع العملاء</h1>
+        </div>
+        <div class="table">
+            <input id="searchbar" type="text" placeholder="ابحث عن المنطقة">
+            <table>
+                <thead>
+                    <tr>
+                        <th>اسم العميل</th>
+                        <th>التاريخ</th>
+                        <th>عدد النقلات</th>
+                        <th>المنطقة</th>
+                    </tr>
+                </thead>
+                <tbody id="tablebody">
+                    {% for sup in sup  %}
+                    <tr>
+                        <td>{{sup.name|arabic_numbers}}</td>
+                        <td>{{sup.date|date:"20y/m/d"|arabic_numbers}}</td>
+                        <td>{{sup.num_of_containers|arabic_numbers}}</td>
+                        <td>{{sup.place}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        window.onload=()=>{
+            document.getElementById('searchbar').focus();
+        }
+        let tablebody = document.getElementById('tablebody')
+        let searchbar = document.getElementById('searchbar')
+        searchbar.onkeyup=()=>{
+            let filter = searchbar.value.toUpperCase();
+            let tr= tablebody.getElementsByTagName('tr');
+                        for(var i=0; i<tr.length; i++){
+                            let td = tr[i].getElementsByTagName('td')[3];
+                            if(td){
+                                let txtvalue = td.textContent;
+                                if(txtvalue.toLocaleUpperCase().indexOf(filter)>-1){
+                                    tr[i].style.display='';
+                                    
+                                }else{   
+                                    tr[i].style.display='none';
+                                }
+                            }
+                        }
+        }
+    </script>
+</body>
+</html>

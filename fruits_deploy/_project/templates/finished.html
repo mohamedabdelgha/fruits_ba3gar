@@ -1,0 +1,149 @@
+{% load static %}
+{% load i18n %}
+{% load arabic_numbers %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static "css/main.css" %}">
+    <title>النقلات</title>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="mainnav">
+            <div class="main">
+                <img src="{% static "images/logo.png" %}" alt="">
+                <h1>الصفحة الرئيسية</h1>
+            </div>
+        </a>
+        <a href="{% url 'home' %}"><i class="fa-solid fa-arrow-left"></i></a>
+    </header>
+    <div class="todayscar">
+        <div class="title">
+            <h1>النقلات المنتهية</h1>
+        </div>
+        <div class="table">
+            <input id="searchbar" type="text" placeholder="ابحث عن نقلة باستخدام اسم العميل">
+            <div id="kindsinfocon" style="display: none;">
+                <i id="closekinds" class="fa-solid fa-xmark close"></i>
+                <div id="kindsinfo">
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>رقم النقلة</th>
+                        <th>اسم العميل</th>
+                        <th>التاريخ</th>
+                        <th>نوع النقلة</th>
+                        <th>عدد الاصناف</th>
+                        <th id="totbtn">العدد الاساسى</th>
+                        <th>العدد المباع</th>
+                        <th>العدد المتبقى</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="tablebody">
+                    {% for container in containers  %}
+                    <tr>
+                        <td>{{container.id|arabic_numbers}}</td>
+                        <td>{{container.supplier.name}}</td>
+                        <td>{{container.date|date:"20y/m/d"|arabic_numbers}}</td>
+                        <td>
+                            {% if container.containeritem_set.all%}
+                            <i metadata="
+                            <table>
+                                <thead>
+                                    <th>الصنف</th>
+                                    <th>العدد</th>
+                                    <th>المتبقى</th>
+                                    <th>السعر</th>
+                                </thead>
+                            {%for con in container.containeritem_set.all %}
+                                <tbody>
+                                    <tr>
+                                        <td>{{con.item.name}} </td>
+                                        <td>{{con.count|arabic_numbers}} </td>
+                                        <td>{{con.remaining_count|arabic_numbers}}</td>
+                                        <td>{{con.price|arabic_numbers}} </td>
+                                    </tr> 
+                                </tbody>
+                            {% endfor %}
+                            </table>   
+                            " class="fa-solid fa-info" id="kindinfo"></i>
+                            {%else%}
+                            لا يوجد
+                            {% endif %}
+                        </td>
+                        <td>{{container.num_of_items|arabic_numbers}}</td>
+                        <td style="display: none;">{{container.main_total_count}}</td>
+                        <td>{{container.main_total_count|arabic_numbers}}</td>
+                        <td>{{container.total_sold_count|arabic_numbers}}</td>
+                        <td>{{container.total_remaining_count|arabic_numbers}}</td>
+                        <td><a href="{% url "condetails" container.id %}" style="text-decoration: none;" id="details" class="type">تفاصيل</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="{% static "js/search.js" %}"></script>
+    <script>
+         // Select all elements with the ID "kindinfo"
+    const kindInfoElements = document.querySelectorAll("#kindinfo");
+    // Add a click event listener to each element
+    kindInfoElements.forEach(element => {
+        const metadata = element.getAttribute('metadata')
+        element.addEventListener("click", () => {
+        console.log(metadata)
+        // Find the div with the ID "kindsinfo"
+        const kindsInfoDiv = document.getElementById("kindsinfocon");
+        const kindsInfo = document.getElementById("kindsinfo");
+        kindsInfo.innerHTML = metadata
+        // Toggle the visibility of the div
+        element.style.background = element.style.background === "#c10" ? "#000" : "#c10";
+        kindsInfoDiv.style.display = kindsInfoDiv.style.display === "none" ? "block" : "none";
+    });
+    });
+    const closekindInfoElements = document.querySelectorAll("#closekinds");
+    // Add a click event listener to each element
+    closekindInfoElements.forEach(element => {
+        element.addEventListener("click", () => {
+        // Find the div with the ID "kindsinfo"
+        const kindsInfoDiv = document.getElementById("kindsinfocon");
+        kindsInfoDiv.style.display = kindsInfoDiv.style.display === "none" ? "block" : "none";
+    });
+    });
+        let detailsbtn = document.getElementById('details')
+        detailsbtn.onclick=()=>{
+        window.location.href='cardetails.html'
+        }
+        const tableBody = document.getElementById('tablebody');
+        const totbtn = document.getElementById('totbtn'); 
+        function sortByPrice(ascending) {
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        // Clone rows to avoid DOM manipulation
+        const sortedRows = rows.slice();
+        sortedRows.sort((row1, row2) => {
+            const weight1 = parseFloat(row1.querySelectorAll('td')[5].textContent.trim());
+            const weight2 = parseFloat(row2.querySelectorAll('td')[5].textContent.trim());
+            return (weight1 - weight2) * (ascending ? 1 : -1);
+        });
+        // Clear and re-append sorted rows
+        tableBody.innerHTML = '';
+        sortedRows.forEach(row => tableBody.appendChild(row));
+        }
+        let isAscending = true;
+        totbtn.addEventListener('click', () => {
+        isAscending = !isAscending;
+        sortByPrice(isAscending);
+        });
+        window.onload=()=>{
+            document.getElementById('searchbar').focus();
+        }
+    </script>
+
+</body>
+</html>

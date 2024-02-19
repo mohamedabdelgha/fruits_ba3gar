@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static "css/style.css" %}">
+    <title>تسجيل الخروج</title>
+</head>
+<body>
+<div class="backcon">
+    <img src="{% static "images/tigertech.png" %}" id="tigerLogo">  
+    <div class="imgbox">
+    </div>
+    <div class="txt">
+        <h2>تم تسجيل الخروج</h2>
+    </div>
+    <div class="logcon">
+        <img src="{% static "images/logo.png" %}">
+        <h1>هل تريد تسجيل الدخول مجددا؟</h1>
+            {% csrf_token %}
+            <a class='logout' type="submit" href="{% url 'login' %}" style="
+            display: inline-block;
+            padding: 10px 20px;
+            text-decoration: none;
+            background-color: #3498db; 
+            color: #fff; 
+            border-radius: 5px;
+            border: 2px solid #3498db;
+            transition: background-color 0.3s, color 0.3s;
+          ">
+          
+          تسجيل الدخول</a>
+          
+    </div>
+</div>
+</body>
+</html>

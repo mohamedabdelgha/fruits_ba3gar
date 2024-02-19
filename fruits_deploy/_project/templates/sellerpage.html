@@ -1,0 +1,808 @@
+{% load static %}
+{% load i18n %}
+{% load arabic_numbers %}
+{% load arabic_days %}
+{% load abs_numbers %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static "css/main.css" %}">
+    <title>صفحة البائع</title>
+</head>
+<body>
+    <header>
+            <a href="{% url 'home' %}" class="mainnav">
+                <div class="main">
+                    <img src="{% static "images/logo.png" %}" alt="">
+                    <h1>الصفحة الرئيسية</h1>
+                </div>
+            </a>
+        </a>
+        <a href="{% url 'selleraccounts' %}"><i class="fa-solid fa-arrow-left"></i></a>
+    </header>
+    <div id="detailwindow" >
+        <i id="closedetwin" class="fa-solid fa-xmark close"></i>
+        <div id="detailcontainer" style="display: flex; justify-content: center;align-items: center;flex-direction: column;"></div>
+    </div>
+    <div id="sellerCon">
+        <h2> فاتورة البائع : <span>{{seller.name}}</span></h2>
+    </div>
+    <div id="buttonCon">
+        <button id="addpay" class="sellingbtn" style="background-color: #00C2F4;">اضافة دفع</button>
+        <button class="print" id="print">طباعة</button>
+        <button class="print" id="printall">طباعة الكل</button>
+        <table class="mintable1">
+            <thead>
+                <tr>
+                    <th colspan="4">التفاصيل</th>
+                </tr>
+            </thead>
+            <tbody id="tablecolbody">
+                <tr>
+                    <td style="border-right: 1px solid #625D5D;">عليه</td>
+                    <td>اجمالى الوجبات</td>
+                </tr>
+                <tr>
+                    <td style="border-right: 1px solid #625D5D;"><span>{{ seller.on_him|arabic_numbers }}</span> جنيه</td>
+                    <td><span id="spantotal">{{ seller.on_him|arabic_numbers }}</span> جنيه</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- selectdate container -->
+    <div id="selectdatecon" class="window" style="position: fixed; top: 15%;">
+        <i id="closeseldatecon" class="fa-solid fa-xmark close"></i>
+        <div class="datesinp">
+            <h3> _____ برجاء تحديد التاريخ _____</h3>
+            <div>
+                <span>من بعد : </span>
+                <input type="date" id="startDate">
+            </div>
+            <div>
+                <span>الى : </span>
+                <input type="date" id="endDate">
+            </div>
+            <button class="print" style="width: 30%;" id="filterButton">معاينة و طباعة</button>
+        </div>
+    </div>
+    <!-- print container -->
+    <div id="printcon" class="window" style="display: none;position: fixed; top: 0%;">
+        <i id="closeprintcon" class="fa-solid fa-xmark close"></i>
+        <i id="printbtn" class="fa-solid fa-print printing"></i>
+        <div id="printcontent"style="direction:ltr;">
+            <img src="{% static "images/printba3ger.png" %}" alt="">
+            <div style="width: 90%;border-radius: 10px;margin: 0; border: 1px solid #625D5D; text-align: center;padding:0px 2px;display: flex;align-items: center;justify-content: space-around;flex-direction: row;">
+                <span style="font-size: 20px;">تحريراً فــى : <span id="billDate">date</span></span>
+                <span style="font-size: 25px;">مطلوب من : {{seller.name}}</span>
+            </div><br>
+            <table id="myprintTable">
+                <thead>
+                    <tr>
+                        <th>اليوم</th>
+                        <th>التاريخ</th>
+                        <th>الصنف</th>
+                        <th>السعر</th>
+                        <th>الوزن</th>
+                        <th>العدد</th>
+                        <th>المبلغ</th>
+                    </tr>
+                </thead>
+                <tbody id="tableprintbody">
+                    
+                </tbody>
+            </table>
+            <table class="mintable1">
+                <thead>
+                    <tr>
+                        <th>التفاصيل</th>
+                    </tr>
+                </thead>
+                <tbody id="tablecolbody">
+                    <tr>
+                        <td>ما قبله : <span id="spantotal">{{ seller.seller_opening_balance|arabic_numbers }}</span> جنيه</td>
+                    </tr>
+                    <tr>
+                        <td>الباقى : <span id="spantotal">{{ seller.on_him|arabic_numbers }}</span> جنيه</td>
+                    </tr>
+                    <tr>
+                        <td>عليه : <span>{{ seller.on_him|arabic_numbers }}</span> جنيه</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>    
+    </div>
+    <!-- printall container -->
+    <div id="printallcon" class="window" style="display: none;position: fixed; top: 0%;">
+        <i id="closeprintallcon" class="fa-solid fa-xmark close"></i>
+        <i id="printallbtn" class="fa-solid fa-print printing"></i>
+        <div id="printallcontent" style="direction:ltr;">
+            <img src="{% static "images/printba3ger.png" %}" alt="">
+            <div style="width: 90%;border-radius: 10px;margin: 0; border: 1px solid #625D5D; text-align: center;padding:0px 2px;display: flex;align-items: center;justify-content: space-around;flex-direction: row;">
+                <span style="font-size: 20px;">تحريراً فــى : <span id="billDate">date</span></span>
+                <span style="font-size: 25px;">مطلوب من : {{seller.name}}</span>
+            </div><br>
+            <table id="myprintTable">
+                <thead>
+                    <tr>
+                        <th>اليوم</th>
+                        <th>التاريخ</th>
+                        <th>الصنف</th>
+                        <th>السعر</th>
+                        <th>الوزن</th>
+                        <th>العدد</th>
+                        <th>المبلغ</th>
+                    </tr>
+                </thead>
+                <tbody id="tableprintallbody">
+                    
+                </tbody>
+            </table>
+            <table class="mintable1">
+                <thead>
+                    <tr>
+                        <th>التفاصيل</th>
+                    </tr>
+                </thead>
+                <tbody id="tablecolbody">
+                    <tr>
+                        <td>الباقى : <span id="spantotal">{{ seller.on_him|arabic_numbers }}</span> جنيه</td>
+                    </tr>
+                    <tr>
+                        <td>عليه : <span>{{ seller.on_him|arabic_numbers }}</span> جنيه</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>    
+    </div>
+    <!-- نافذه اضافة التحصيلات  -->
+    <form method ="POST" action="{% url "sellerpage" seller.id %}" class="window" id="profitcon" style="display: none;position: fixed; top: 15%;">
+            {% csrf_token %}
+            <i id="closeprofit" class="fa-solid fa-xmark close"></i>
+            <div class="inputs">
+                <input type="text" name="seller" id="seller" value="{{seller.name}}" readonly>
+                <input type="number" step="0.01" name="paid" id="moneypay" placeholder="المبلغ" min="0" required >
+                <input type="number" step="0.01" name="forgive" placeholder="السماح" min="0">
+                <button type="submit" name="profits" id="addprofit">اضافة</button>
+                <input type="date" name="date" id="">
+            </div>
+        </form>
+        
+        <div class="detailscon">
+            <h2> اسم البائع : <span>{{seller.name}}</span></h2>
+            <h2>التاريخ : <span>{{seller.date|date:"20y/m/d"|arabic_numbers}}</span></h2>
+            <h2>اجمالي الوجبات : <span>{{ seller.total_money|arabic_numbers }}</span></h2>
+            <h2>الرصيد الافتتاحى : <span>{{ seller.seller_opening_balance|arabic_numbers }}</span></h2>
+            {% if seller.on_him >= 0 %}
+            <h2>عليه : <span>{{ seller.on_him|arabic_numbers }}</span></h2>
+            {% else %}
+            <h2 style="color: #FF0000; font-weight: bolder;"> ( له رصيد ) : <span style="color: #FF0000;  font-weight: bolder;">{{ seller.on_him|arabic_numbers }}</span></h2>
+            {% endif %}
+            <button id="addpay" class="sellingbtn" style="background-color: #00C2F4;">اضافة دفع</button>
+        </div>
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    <div class="todayscar" style="margin-bottom: 300px;">
+        <div class="title">
+            <h1>الفواتير</h1>
+        </div>
+        <div class="table">
+            <button class="print" id="print">طباعة</button>
+            <button class="print" id="printall">طباعة الكل</button>
+            <input id="searchbar" type="text" placeholder="ابحث عن تاريخ معين">
+            <h3>{{sale.dept}}</h3>
+            <table id="originalTable">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>اليوم</th>
+                        <th>التاريخ</th>
+                        <th>الصنف</th>
+                        <th>السعر</th>
+                        <th>الوزن</th>
+                        <th>العدد</th>
+                        <th>المبلغ</th>
+                        <th>الرهن</th>
+                        <th>ملحوظة</th>
+                        <th>تعديل</th>
+                        <th>حذف</th>
+                    </tr>
+                </thead>
+                <tbody id="tablebody">
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td colspan="4">ما قبله </td>
+                        <td>{{ seller.seller_opening_balance|arabic_numbers }}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    {% for sale in sales %}
+                    <tr class="salesrow">
+                        <td><input type="checkbox" id="check"></td>
+                        <td>{{ sale.date|date:"w"|arabic_days }}</td>
+                        <td style="display: none;">{{ sale.date|date:"20y/m/d"}}</td>
+                        <td>{{ sale.date|date:"20y/m/d"|arabic_numbers }}</td>
+                        <td>{{ sale.container_item.item.name }}</td>
+                        <td>{{ sale.price|arabic_numbers }}</td>
+                        <td>{{ sale.weight|arabic_numbers }}</td>
+                        <td>{{sale.count|arabic_numbers}}</td>
+                        <td>{{ sale.total_sell_price|arabic_numbers }}</td>
+                        <td>
+                            {{ sale.dept|arabic_numbers }}
+                            {% if user.first_name == "شبه مسئول" or user.first_name == "مستخدم متقدم" or user.first_name == 'adminName' %}
+                                <a metadata='
+                                {% if user.first_name == "شبه مسئول" or user.first_name == "مستخدم متقدم" or user.first_name == "adminName" %}
+                                <form method ="POST"  class="addcar" action="{% url "deptupdate" sale.id %}">
+                                    {% csrf_token %}
+                                    {% for message in messages %}
+                                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                    {% endfor %}
+                                
+                                        <div>
+                                            <h1>ادخل قيمة الرهن الجديدة</h1>
+                                            <hr>
+                                            <input value="{{sale.dept}}" step="0.001" name = "dept" id="dept_input"  type="number" placeholder="قيمة الرهن الجديدة"  min="0">
+                                        </div>
+                                        <button  class="addbtn">تعديــــــل</button>
+                                    </form>
+                                    {% else %}
+                                        <h1>التعديل غير مفعل</h1>
+                                    {% endif %}
+                                ' id="editdept" class="btn"><i class="fa-solid fa-pen"></i></a>
+                            {% endif %}
+                        </td>
+                        <td></td>
+                        <td>
+                            {% if user.first_name == "شبه مسئول" or user.first_name == "مستخدم متقدم" or user.first_name == 'adminName' %}
+                                <a  metadata='
+                                <i class="fa-solid fa-clock-rotate-left" style="color: #00F000; font-size:150px;padding:10px ;"></i>
+                                <form method="POST" class="sellcon" action="{% url "saleupdate" id=sale.id %}">
+                                    {% csrf_token %}
+                                    <ul class="messages">
+                                        {% for message in messages %}
+                                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    <nav class="wraper">
+                                        <div class="first">
+                                            <input name="seller" value="{{ sale.seller.name }}" type="text" id="search_bar" required >
+                                            <span>اسم البائع</span>
+                                            <i id="arrow-down" class="fa-solid fa-angles-down"></i>
+                                        </div>
+                                            <div class="search_res" id="search_res">
+                                                <table>
+                                                    <th></th>
+                                                    <tbody id="suplliersul">
+                                                        {% for seller in sellers %}
+                                                        <tr><td>{{ seller.name }}</td></tr>
+                                                        {% endfor %}
+                                                    </table>
+                                                </table>
+                                            </div>
+                                        </nav>
+                                        <select name="container_item" id="container_item">
+                                        {% for item in sale.container.containeritem_set.all %}
+                                            <option value="{{ item.item.name }}" data-price="{{ item.price }}">{{ item.item.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="hidden" name="container_id" value="{{ sale.container.id }}">
+                                    <input type="hidden" name="sale_id" value="{{ sale.id }}">
+                                    <div class="inputBox">
+                                        <input name="count" id="count" type="number" value="{{ sale.count }}" min="1" required >
+                                        <span>العدد</span>
+                                    </div>
+                                    <div class="inputBox">
+                                        <input name="weight" type="number" step="0.01" value="{{ sale.weight }}" min="0" required>
+                                        <span>الوزن</span>
+                                    </div>
+                                    <div class="inputBox">
+                                        <input name="price" type="number" step="0.001" value="{{ sale.price }}" min="0" id="priceInput"  required>
+                                        <span>السعر</span>
+                                    </div>
+                                    <select name="tool" id="">
+                                        <option value="اخر" {% if sale.tool == "اخر" %} selected {% endif %}>اخر</option>
+                                        <option value="صناديق كبيرة" {% if sale.tool == "صناديق كبيرة" %} selected {% endif %}>صناديق كبيرة</option>
+                                        <option value="صناديق صغيرة" {% if sale.tool == "صناديق صغيرة" %} selected {% endif %}>صناديق صغيرة</option>
+                                    </select>
+                                    <input name="date" type="date" value="{{ sale.date|date:"Y-m-d" }}" placeholder="المنظقة">
+                                    <input name="dept" type="number" id="deptinp" value="{{ sale.dept }}" placeholder="الرهن">
+                                    <button type="submit">تم</button>
+                                </form>
+                            ' id="editcar1" class="btn"><i class="fa-solid fa-pen"></i></i></a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.first_name == "شبه مسئول" or user.first_name == 'adminName' %}
+                            <a metadata='
+                            {% if user.first_name == "شبه مسئول" or user.first_name == "adminName" %}
+                            <h1>هل حقاً تريد حذف عملية البيع</h1>
+                            <br>
+                            <i class="fa-regular fa-trash-can" style="color: #ff3333;font-size: 150px;"></i>
+                            <br>
+                            <form method="POST" class="deleteForm"  action="{% url "saledelete" id=sale.id %}"> 
+                                {% csrf_token %}
+                                <a><button name="deleteSale3" class="delete-link" type="submit">حذف</button></a>
+                            </form>
+                            {% else %}
+                            <h1>الحذف غير مفعل</h1>
+                            {% endif %}' id="deletecar" class="btn"  style="color: #FF0000;" ><i class="fa-solid fa-trash"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    
+                    {% for date_group in sales_by_date %}
+                        <tr class="subtotal" id="subtotal" style="background:rgb(255, 255, 85);">
+                            <td></td>
+                            <td>{{ date_group.date|date:"w"|arabic_days }}</td>
+                            <td style="display: none;">{{ date_group.date|date:"20y/m/d"}}</td>
+                            <td>{{ date_group.date|date:"20y/m/d"|arabic_numbers }}</td>
+                            <td colspan="4">اجمالى وجبة</td>
+                            <td colspan="2">{{ date_group.total_meal|floatformat:2|arabic_numbers }}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            
+                        </tr>
+                        {% endfor %}
+                        
+                        {% for payment in payments %}
+                    <tr class="paied" id="paied">
+                        <td><input type="checkbox" id="check"></td>
+                        <td>{{ payment.date|date:"w"|arabic_days }}</td>
+                        <td style="display: none;">{{ payment.date|date:"20y/m/d"}}</td>
+                        <td>{{ payment.date|date:"20y/m/d"|arabic_numbers }}</td>
+                        <td colspan="4">تم دفع</td>
+                        <td>{{ payment.paid_money|arabic_numbers }}</td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            {% if user.first_name == "شبه مسئول" or user.first_name == "مستخدم متقدم" or user.first_name == 'adminName' %}
+                            <a metadata='   
+                            {% if user.first_name == "شبه مسئول" or user.first_name == "مستخدم متقدم" or user.first_name == "adminName" %} 
+                            <form method ="POST"  class="addcar" action="{% url "profitsupdate" id=payment.id %}">
+                            {% csrf_token %}
+                                <div>
+                                    <input value="{{payment.paid_money}}" name ="paid_money" id="paid_money" type="number" placeholder="المبلغ" min="0" required>
+                                    <input value="{{payment.forgive}}" name = "forgive" type="number" placeholder="السماح" min="0">
+                                    <input value="{{payment.date|date:"Y-m-d"}}" name = "date" type="date" placeholder="المنظقة">
+                                </div>
+                                <button  class="addbtn">تعديــــــل</button>
+                            </form>
+                            {% else %}
+                                <h1>التعديل غير مفعل</h1>
+                            {% endif %}'
+                            id="editcar2" class="btn" ><i class="fa-solid fa-pen"></i></a>
+                            {% endif %} 
+                        </td>
+                        <td>
+                            {% if user.first_name == "شبه مسئول" or user.first_name == 'adminName' %}
+                            <a metadata='
+                            {% if user.first_name == "شبه مسئول" or user.first_name == "adminName" %}
+                            <h1>هل حقاً تريد حذف عملية الدفع</h1>
+                            <br>
+                            <i class="fa-regular fa-trash-can" style="color: #ff3333;font-size: 150px;"></i>
+                            <br>
+                            <form method="POST" class="deleteForm" action="{% url "profitsdelete" payment.id %}">
+                                {% csrf_token %}
+                                <a><button name="deleteProfit" class="delete-link" type="submit">حذف</button></a>
+                            </form>
+                            {% else %}
+                            <h1>الحذف غير مفعل</h1>
+                            {% endif %}' id="deletecar" class="btn"  style="color: #FF0000;" ><i class="fa-solid fa-trash"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr class="paied" id="" style="background:#7dd3e9;">
+                        <td><input type="checkbox" id="check"></td>
+                        <td>{{ payment.date|date:"w"|arabic_days }}</td>
+                        <td style="display: none;">{{ payment.date|date:"20y/m/d"}}</td>
+                        <td>{{ payment.date|date:"20y/m/d"|arabic_numbers }}</td>
+                        <td colspan="4">السماح </td>
+                        <td>{{ payment.forgive|arabic_numbers }}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="remain" id="remain">
+                        <td colspan="8">الباقى </td>
+                        {% if seller.on_him >= 0 %}
+                        <td colspan="3">{{ seller.on_him|arabic_numbers }} جنية </td>
+                        {% else %}
+                        <td colspan="3" style="direction: rtl;">{{ seller.on_him|arabic_numbers }}  (له رصيد)  </td>
+                        {%  endif %}
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <script>
+        const editcar1 = document.querySelectorAll('#editcar1')
+        const editcar2 = document.querySelectorAll('#editcar2')
+        const editdept = document.querySelectorAll('#editdept')
+        const deletecar = document.querySelectorAll('#deletecar')
+        const closedetwin = document.getElementById('closedetwin')
+        editcar1.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='30%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+                document.getElementById('count').focus();
+            }
+        })
+        editcar2.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='30%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+                document.getElementById('paid_money').focus();
+            }
+        })
+        editdept.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='30%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+                document.getElementById('dept_input').focus();
+            }
+        })
+        deletecar.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='30%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+            }
+        })
+        closedetwin.addEventListener('click',()=>{
+            document.getElementById('detailwindow').style.top='0'
+            document.getElementById('detailwindow').style.visibility='hidden'
+                document.getElementById('detailwindow').style.transform='scale(0)'
+        })
+        window.onload=()=>{
+            document.getElementById('searchbar').focus();
+        }
+        window.onscroll=()=>{
+            if(scrollY>=200){
+                
+                document.getElementById('sellerCon').style.top="0"
+                document.getElementById('buttonCon').style.bottom="0"
+            }else{
+                document.getElementById('sellerCon').style.top=""
+                document.getElementById('buttonCon').style.bottom=""
+            }
+        }
+        const currentDate = new Date();
+        const month = currentDate.getMonth() + 1
+        const armonth=month.toLocaleString('ar-EG',{
+            minimumFractionDigits:0,
+            maximumFractionDigits:0
+        });
+        const day = currentDate.getDate().toLocaleString('ar-EG',{
+            minimumFractionDigits:0,
+            maximumFractionDigits:0
+        });
+        // Format the date as a string=====================================================================
+        const formattedDate = `${armonth}/${day}`;
+        const billDate = document.querySelectorAll('#billDate')
+        billDate.forEach((bd)=>{
+            bd.innerHTML=formattedDate
+        })
+        let tablebody = document.getElementById('tablebody')
+        let searchbar = document.getElementById('searchbar')
+        //search by date function =========================================================================
+        searchbar.onkeyup=()=>{
+            let filter = searchbar.value.toUpperCase();
+            let tr= tablebody.getElementsByTagName('tr');
+                        for(var i=0; i<tr.length; i++){
+                            let td = tr[i].getElementsByTagName('td')[2];
+                            if(td){
+                                let txtvalue = td.textContent;
+                                if(txtvalue.toLocaleUpperCase().indexOf(filter)>-1){
+                                    tr[i].style.display='';
+                                    
+                                }else{   
+                                    tr[i].style.display='none';
+                                }
+                            }
+                        }
+        }
+        //print all table functions =======================================================================
+        const printAll =  document.querySelectorAll('#printall')
+        printAll.forEach((btn)=>{
+            btn.onclick=function(){
+            // document.querySelectorAll('editdept').style.display='none';
+            document.getElementById('printallcon').style.display='flex';
+            document.getElementById('tableprintallbody').innerHTML=document.getElementById('tablebody').innerHTML
+            // Get a reference to the table with the ID "tableprintbody"
+            const tabled=document.getElementById('tableprintallbody')
+            const rows = tabled.rows
+            const totalrows = tabled.querySelectorAll("tr.subtotal");
+            totalrows.forEach((row) => {
+            row.style.display = "none";
+            });
+            
+            const paidrows = tabled.querySelectorAll("tr.paied");
+            paidrows.forEach((row) => {
+            row.style.display = "none";
+            })
+            // Loop through each row in the table
+            console.log(rows)
+            for (let i = rows.length - 1; i >= 0; i--) {
+                const row = rows[i];
+                  // Delete cells at indices 1, 2, 3, and 4 in descending order to maintain correct indices
+                for (let j = 0; j >= 0; j--) {
+                    row.deleteCell(j);
+                }
+                for (let k = -1; k < 0; k++) {
+                    row.deleteCell(k);
+                    row.deleteCell(k);
+                    row.deleteCell(k);
+                    row.deleteCell(k);
+                }
+            }
+        }})
+        document.getElementById('closeprintallcon').addEventListener('click',function(){
+            document.getElementById('printallcon').style.display='none'
+        })
+        document.getElementById('printallbtn').addEventListener('click', function(){
+            printDiv('printallcontent')    
+        })
+        // priont selected parts by checkboxes functions ================================================================
+        const printCelect =document.querySelectorAll('#print') 
+        printCelect.forEach((btn)=>{
+        btn.addEventListener('click',function(){
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const selectedTable = document.getElementById('tableprintbody');
+            selectedTable.innerHTML='';
+            checkboxes.forEach(checkbox=>{
+                if(checkbox.checked){
+                    document.getElementById('printcon').style.display='flex';
+                    const rows = checkbox.parentNode.parentNode.cloneNode(true);
+                    rows.deleteCell(0)
+                    rows.deleteCell(-1)
+                    rows.deleteCell(-1)
+                    rows.deleteCell(-1)
+                    rows.deleteCell(-1)
+                    selectedTable.appendChild(rows)
+                }else{
+                    document.getElementById('selectdatecon').style.display='flex';
+                }
+            })
+        })})
+        document.getElementById('closeprintcon').addEventListener('click',function(){
+            document.getElementById('printcon').style.display='none'
+            const selectedTable = document.getElementById('tableprintbody');
+            selectedTable.innerHTML='';
+        })
+        document.getElementById('closeseldatecon').addEventListener('click',function(){
+            document.getElementById('selectdatecon').style.display='none'
+        })
+        document.getElementById('printbtn').addEventListener('click', function(){
+            printDiv('printcontent')    
+        })
+        //print by date function ==================================================================
+        const originalTable = document.getElementById("tablebody");
+        const newTable = document.createElement("table"); // Create a new table
+        // Get user input for dates
+        const startDateInput = document.getElementById("startDate");
+        const endDateInput = document.getElementById("endDate");
+
+        function filterAndShowRows() {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        const rowsArray =originalTable.getElementsByTagName('tr');
+        var tableprintbody =document.getElementById('tableprintbody');
+        for(i=1; i<rowsArray.length;i++){
+            const filteredRows = [];
+            const dateString =rowsArray[i].getElementsByTagName("td")[2].textContent;
+            const date = new Date(dateString);
+            if (date >= startDate && date <= endDate) {
+                filteredRows.push(rowsArray[i]);
+            }
+                for(k=0;k<filteredRows.length;k++){
+                    const clonedRow = filteredRows[k].cloneNode(true); // Clone the filtered row
+                    newTable.appendChild(clonedRow); 
+                } // Add the new table to the document body
+                const totalrows = newTable.querySelectorAll("tr.subtotal");
+                totalrows.forEach((row) => {
+                row.style.display = "none";
+                });
+                
+                const paidrows = newTable.querySelectorAll("tr.paied");
+                paidrows.forEach((row) => {
+                row.style.display = "none";
+                })
+                tableprintbody.innerHTML = newTable.innerHTML;
+            }
+            prows = tableprintbody.querySelectorAll("tr.salesrow");
+            prows.forEach((row)=>{
+                row.deleteCell(0)
+                row.deleteCell(-1)
+                row.deleteCell(-1)
+                row.deleteCell(-1)
+                row.deleteCell(-1)
+            })
+            // Clear previous results
+            newTable.innerHTML = "";
+        }
+        
+        // Add an event listener to trigger filtering when input changes
+        document.getElementById("filterButton").addEventListener("click", ()=>{
+            document.getElementById('selectdatecon').style.display='none';
+            document.getElementById('printcon').style.display='flex';
+            filterAndShowRows();
+            
+        });
+    // print paper function =======================================================================
+    function printDiv(divId) {
+        var divToPrint = document.getElementById(divId);
+        var newWin = window.open('', '_blank');
+        newWin.document.open();
+        newWin.document.write(`<html><head><title>Print</title>
+        <link rel="stylesheet" href="{% static "css/main.css" %}">
+        <style>
+            *{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        body{direction:ltr;display:flex; align-items:start; flex-direction:column;height:100vh; background:#fff;}
+        #printcontent table,#printallcontent table{
+        width: 90%;
+        text-align: center;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #040404;
+        }
+        #printcontent table thead,#printallcontent table thead{
+            background-color:#74C785;
+        }
+        #printcontent table th,#printallcontent table th{
+            font-size: 20px;
+            color: #000;
+            padding: 5px;
+            border-bottom: 1px solid #625D5D;
+        }
+        #printcontent table td,#printallcontent table td{
+            font-size: 20px;
+            border: 1px solid #625D5D;
+            padding: 5px;
+            color: #040404;
+        }
+        #printcontent table td .btn,#printallcontent table td .btn{
+            border: none;
+            background-color: transparent;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        #printcontent,#printallcontent{
+            top: 10%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            direction: ltr;
+        }
+        #printcontent .detcon,#printallcontent .detcon{
+            margin: 5px;
+            width: 80%;
+            display: flex;
+            justify-content: space-around;
+            align-items: start;
+            flex-wrap: wrap;
+            flex-direction: row;
+        }
+        #printcontent .detcon div,#printallcontent .detcon div{width: 40%; text-align: center;}
+        #printcontent .detcon table,.detcon ul,#printallcontent .detcon table{
+            width: 90%;
+            text-align: center;
+        }
+        #printcontent img,#printallcontent img{
+            width: 99%;
+        }
+        #printcontent h2,#printallcontent h2{
+            margin: 10px;
+            font-size:25px;
+        }
+        #printcontent ul,#printallcontent ul{
+            width: 80%;
+            list-style: none;
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #printcontent ul .head,#printallcontent ul .head{
+            background-color:#74C785;
+            color: #000;
+        }
+        #printcontent ul li,#printallcontent ul li{
+            padding: 5px ;
+            font-size: 25px;
+            color: #040404;
+            font-weight: 600;
+            border-bottom: 1px solid #625D5D;
+            text-align: center;
+        }
+        </style>
+        </head><body>`);
+        newWin.document.write(divToPrint.outerHTML);
+        newWin.document.write('</body></html>');
+        newWin.document.close();
+        newWin.print();
+        newWin.close();
+        window.location.href="{% url 'sellerpage' seller.id %}"
+    }
+        //payment window functions ===============================================================
+        let addpay = document.querySelectorAll('#addpay')
+        let profitcon = document.getElementById('profitcon')
+        let closeprofit = document.getElementById('closeprofit')
+        addpay.forEach((btn)=>{
+        btn.onclick=()=>{
+            profitcon.style.display='flex'
+            document.getElementById('moneypay').focus();
+        }})
+        closeprofit.onclick=()=>{
+            profitcon.style.display='none'
+        }
+        // Function to sort table rows based on date and time =====================================
+        function sortTable() {
+            var table, rows, switching, i, x, y, shouldSwitch;
+            table = document.getElementById("tablebody");
+            switching = true;
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < rows.length - 1; i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("td")[2].textContent; // Assuming date is in the second column
+                    y = rows[i + 1].getElementsByTagName("td")[2].textContent;
+                    if (x.localeCompare(y) > 0) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+        }
+        sortTable();
+        // Get all date input elements
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+
+        // Get today's date
+        const today = new Date();
+
+        // Loop through each input and set its value to today's date
+        dateInputs.forEach(input => {
+        input.value = today.toISOString().split('T')[0];
+        });
+
+    </script>
+    </body>
+</html>

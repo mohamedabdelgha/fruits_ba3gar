@@ -1,0 +1,178 @@
+{% load static %}
+{% load i18n %}
+{% load arabic_numbers %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static "css/reports.css" %}">
+    <title>الموظفيــــن</title>
+</head>
+<body>
+    <div id="detailwindow">
+        <i id="closedetwin" class="fa-solid fa-xmark close" ></i>
+        <div id="detailcontainer" style="width: 100%; display: flex; justify-content: center;align-items: center;flex-direction: column;"></div>
+    </div>
+<div class="backcon">
+    <img src="{% static "images/tigertech.png" %}" id="tigerLogo">  
+    <div class="leftcon">
+            <div class="employee" id="workers">
+                <h2>الموظفيـــــــــن</h2>
+                <div class="table" style="width: 90%;">
+                    <form method="POST" class="addUser">
+                        {% csrf_token %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                        <input name="name" type="text" id="name" placeholder="اسم الموظف" required >
+                        <input name="job" type="text" id="name" placeholder="الوظيفة" required >
+                        <input name="salary" type="number" id="name" placeholder="المرتب" required >
+                        <button name="addWorker" type="submit">اضافة موظف</button>
+                    </form>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اسم الموظف</th>
+                                <th>الوظيفة</th>
+                                <th>المرتب</th>
+                                <th>السلف</th>
+                                <th>باقى المرتب</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablebody">
+                            {% for worker in workers  %}
+                            <tr>
+                                <td>{{worker.name}}</td>
+                                <td>{{worker.job}}</td>
+                                <td>{{worker.salary|arabic_numbers}}</td>
+                                <td>{{worker.total_loan|arabic_numbers}}</td>
+                                <td>{{worker.rest_salary|arabic_numbers}}</td>
+                            {% if user.first_name == "adminName" %}
+                                <td><a  id="deletecar" metadata='
+                                    <h1>هل حقاً تريد حذف الموظف</h1>
+                                    <br>
+                                    <i class="fa-regular fa-trash-can" style="color: #ff3333;font-size: 150px;"></i>
+                                    <br>
+                                    <form method="POST" action="{% url "deleteworker"  worker.id %}">
+                                        {% csrf_token %}
+                                        <button  class="dettype2" style="background-color: #c10;" type="submit">حذف</button>
+                                    </form>
+                                ' style="background-color: #c10;" class="dettype">حذف</a>
+                                </td>
+                                {% else %}
+                                <td></td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>    
+        <div class="employee" id="loan">
+            <h2>السلف</h2>
+            <div class="table" style="width: 90%;">
+                <form method="POST" class="addUser" style="width: 100%;">
+                    {% csrf_token %}
+                    
+                    <select name="worker" id="worker" required>
+                        <option value="" disabled selected>اختر الموظف</option>
+                        {% for worker in workers  %}
+                        <option value="{{worker.id}}">{{worker.name}}</option>                        
+                        {% endfor %}
+                    </select>
+                    <input name="amount" type="number" id="name" placeholder="السلف" required min="1" >
+                    <input name="date" type="date" >
+                    <button name="addLoan" type="submit">اضافة سلف</button>
+                </form>
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>الموظف</th>
+                            <th>التاريخ</th>
+                            <th>السلف</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablebody">
+                        {% for loan in loans  %}
+                        <tr>
+                            <td>{{loan.worker.name}}</td>
+                            <td>{{loan.date|date:"20y/m/d"|arabic_numbers}}</td>
+                            <td>{{loan.amount|arabic_numbers}}</td>
+                            {% if user.first_name == "adminName" %}
+                            <td><a  id="deletecar" metadata='
+                                <h1>هل حقاً تريد حذف هذه السلفه</h1>
+                                <br>
+                                <i class="fa-regular fa-trash-can" style="color: #ff3333;font-size: 150px;"></i>
+                                <br>
+                                <form method="POST" action="{% url "deleteloan"  loan.id %}">
+                                    {% csrf_token %}
+                                    <button class="dettype2" style="background-color: #c10;" type="submit">حذف</button>
+                                </form>
+                            ' style="background-color: #c10;" class="dettype">حذف</a></td>
+                            {% else %}
+                            <td></td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="rightcon">
+        <div class="righttitle">
+            <img src="{% static "images/logo.png" %}">
+            <h2>الموظفين</h2>
+        </div>
+        <ul>
+            <a href="#workers"><li>الموظفين</li></a>
+            <a href="#loan"><li>السلف</li></a>
+            <a  id="deletecar" metadata='
+            <h1>هل حقاً تريد حذف جميع السلف</h1>
+            <br>
+            <i class="fa-regular fa-trash-can" style="color: #ff3333;font-size: 150px;"></i>
+            <br>
+            <form method="POST">
+                {% csrf_token %}
+                <button name="deleteAllLoans"  class="dettype2" style="background-color: #c10;" type="submit">حذف</button>
+            </form>'><li>تصفية جميع السلف</li></a>
+            <a href="{% url 'home' %}" id="logout"><li>عودة</li></a>
+        </ul>
+    </div>
+</div>
+<script>
+        const deletecar = document.querySelectorAll('#deletecar')
+        const closedetwin = document.getElementById('closedetwin')
+        deletecar.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='30%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+            }
+        })
+        closedetwin.addEventListener('click',()=>{
+            document.getElementById('detailwindow').style.top='0'
+            document.getElementById('detailwindow').style.visibility='hidden'
+            document.getElementById('detailwindow').style.transform='scale(0)'
+        })
+    // Get all date input elements
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+
+    // Get today's date
+    const today = new Date();
+
+    // Loop through each input and set its value to today's date
+    dateInputs.forEach(input => {
+    input.value = today.toISOString().split('T')[0];
+    });
+</script>
+</body>
+</html>

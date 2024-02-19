@@ -1,0 +1,148 @@
+{% load static %}
+{% load arabic_numbers %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static "css/main.css" %}">
+    <title> اضافة اصناف</title>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="mainnav">
+            <div class="main">
+                <img src="{% static "images/logo.png" %}" alt="">
+                <h1>الصفحة الرئيسية</h1>
+            </div>
+        </a>
+        <a href="{% url "home" %}"><i class="fa-solid fa-arrow-left"></i></a>
+    </header>
+    <div id="detailwindow" style="width: 50%;">
+        <i id="closedetwin" class="fa-solid fa-xmark close"></i>
+        <div id="detailcontainer" style="display: flex; justify-content: center;align-items: center;flex-direction: column;"></div>
+    </div>
+    <div class="todayscar">
+        <form method="POST" class="addcar" action="{% url "items" %}">
+            {% csrf_token %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            <div>
+                <input name='name' id="kind" type="text" placeholder="اسم الصنف" required>
+                <input name='date' type="date" placeholder="التاريخ" >
+            </div>
+            <button name="addItem" class="addbtn">اضف صنف</button>
+        </form>
+
+        <div class="title">
+            <h1>جميع الاصناف</h1>
+        </div>
+        <div class="table">
+            <input id="searchbar" type="text" placeholder="ابحث عن صنف">
+            <table>
+                <thead>
+                    <tr>
+                        <th>كود الصنف</th>
+                        <th>اسم الصنف</th>
+                        <th>التاريخ</th>
+                        {% if user.first_name == "شبه مسئول" or user.first_name == "مستخدم متقدم" or user.first_name == 'adminName'%}
+                        <th></th>
+                        {% endif %}
+                        {% if user.first_name == "شبه مسئول" or user.first_name == 'adminName' %}
+                        <th></th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody id="tablebody">
+                    <tr>
+                    {% for n in items  %}
+                        <td>{{n.id|arabic_numbers}}</td>
+                        <td>{{n.name}}</td>
+                        <td>{{n.date|date:"20y/m/d"|arabic_numbers}}</td>
+                        {% if user.first_name == "شبه مسئول" or user.first_name == "مستخدم متقدم" or user.first_name == 'adminName' %}
+                        <td><a  metadata='
+                            {% if user.first_name == "شبه مسئول" or user.first_name == "مستخدم متقدم" or user.first_name == "adminName" %}
+                            <form method ="POST"  class="addcar" action="{% url "itemupdate" id=n.id %}">
+                            <i class="fa-solid fa-clock-rotate-left" style="color: #00F000; font-size:150px;padding:10px ;"></i>
+                            {% csrf_token %}
+                                <div>
+                                    <input value="{{n.name}}" name ="name" id="kind" type="text" placeholder="اسم الصنف" required>
+                                    <input value="{{n.date|date:"Y-m-d"}}" name = "date" type="date" placeholder="المنظقة">
+                                </div>
+                                <button name="updateItem"  class="addbtn">تعديــــــل</button>
+                            </form>
+                            {% else %}
+                                <h1>التعديل غير مفعل</h1>
+                            {% endif %}' id="editcar" class="btn" style="color: #00F000;"><i class="fa-regular fa-pen-to-square"></i></a></td>
+                        {% endif %}
+                        {% if user.first_name == "شبه مسئول" or user.first_name == 'adminName' %}
+                        <td><a metadata='
+                            {% if user.first_name == "شبه مسئول" or user.first_name == "adminName" %}
+                            <h1>هل حقاً تريد حذف الصنف</h1>
+                            <br>
+                            <i class="fa-regular fa-trash-can" style="color: #ff3333;font-size: 150px;"></i>
+                            <br>
+                            <form method="POST" class="deleteForm" action="{% url "itemdelete" n.id %}">
+                                {% csrf_token %}
+                                <a><button class="delete-link" type="submit">حذف</button></a>
+                            </form>
+                            {% else %}
+                            <h1>الحذف غير مفعل</h1>
+                        {% endif %}' id="deletecar" class="btn"  style="color: #FF0000;" ><i class="fa-solid fa-trash"></i></a></td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="{% static "js/search.js" %}"></script>
+    <script>
+        window.onload=()=>{
+            document.getElementById('kind').focus();
+        }
+
+        const editcar = document.querySelectorAll('#editcar')
+        const deletecar = document.querySelectorAll('#deletecar')
+        const closedetwin = document.getElementById('closedetwin')
+        editcar.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='30%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+            }
+        })
+        deletecar.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='30%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+            }
+        })
+        closedetwin.addEventListener('click',()=>{
+            document.getElementById('detailwindow').style.top='0'
+            document.getElementById('detailwindow').style.visibility='hidden'
+            document.getElementById('detailwindow').style.transform='scale(0)'
+        })
+        // Get all date input elements
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+
+        // Get today's date
+        const today = new Date();
+
+        // Loop through each input and set its value to today's date
+        dateInputs.forEach(input => {
+        input.value = today.toISOString().split('T')[0];
+        });
+
+    </script>
+</body>
+</html>

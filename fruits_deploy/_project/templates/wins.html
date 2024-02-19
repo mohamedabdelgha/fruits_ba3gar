@@ -1,0 +1,193 @@
+{% load static %}
+{% load i18n %}
+{% load arabic_numbers %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static "css/main.css" %}">
+    <title>تقفيل اليوم</title>
+</head>
+<body>
+    <div id="detailwindow" style="overflow-y: scroll; max-height: 70vh;align-items: start;justify-content: start;">
+        <i id="closedetwin" class="fa-solid fa-xmark close" ></i>
+        <div id="detailcontainer" style="width: 100%; display: flex; justify-content: center;align-items: center;flex-direction: column;"></div>
+    </div>
+    <!-- نافذه اضافة التحصيلات  -->
+    <div class="profitcon" id="profitcon" style="margin:150px;">
+        <a href="{% url 'home' %}" style="text-decoration:none;" id="closeprofit" class="fa-solid fa-xmark close"></a>
+        <div class="inputs">
+            <form method="post" action="{% url 'wins' %}" class="inputs">
+                {% csrf_token %}
+                <input type="date" id="date" name="date" required>
+                <button type="submit" id="addprofit">عرض الارباح</button>
+            </form>
+        </div>
+        <h2> أرباح يوم : {{ selected_date|date:"Y/m/d"|arabic_numbers }}</h2>
+        <div class="detailscon3">
+            {% if total_commission is not None %}
+                <h2 metadata='
+                <table>
+                    <thead>
+                        <tr>
+                            <th>رقم النقلة</th>
+                            <th>اسم العميل</th>
+                            <th>التاريخ</th>
+                            <th>العمولة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for container in containers %}
+                        <tr>
+                            <td>{{container.id}}</td>
+                            <td>{{container.supplier.name}}</td>
+                            <td>{{ container.date|date:"20y/m/d"|arabic_numbers}}</td>
+                            <td>{{container.main_commission|arabic_numbers}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                ' id="daycom">عمولات اليوم : <span>{{ total_commission|arabic_numbers }}</span></h2>
+                <h2 metadata='
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المصروف</th>
+                            <th>النوع</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableprofitbody">
+                        {% for lose in loses %}
+                        <tr>
+                            <td>{{lose.amount|arabic_numbers}}</td>
+                            <td>{{ lose.lose_type}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                '
+                id="dayloses">مصروفات اليوم : <span>{{ total_loses|arabic_numbers }}</span></h2>
+                <h2 metadata='
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم البائع</th>
+                            <th>التاريخ</th>
+                            <th>السماح</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for forgive in forgives %}
+                        <tr>
+                            <td>{{forgive.seller.name}}</td>
+                            <td>{{ forgive.date|date:"20y/m/d"|arabic_numbers}}</td>
+                            <td>{{forgive.forgive|arabic_numbers}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                '
+                id="dayforgive">سماح اليوم : <span>{{ total_forgive|arabic_numbers }}</span></h2>
+                <h2 metadata='
+                <table>
+                    <thead>
+                        <tr>
+                            <th>رقم النقلة</th>
+                            <th>اسم العميل</th>
+                            <th>التاريخ</th>
+                            <th>المصروف</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableprofitbody">
+                        {% for container in containers %}
+                        <tr>
+                            <td>{{container.id}}</td>
+                            <td>{{container.supplier.name}}</td>
+                            <td>{{ container.date|date:"20y/m/d"|arabic_numbers}}</td>
+                            <td>{{container.total_con_expenses|arabic_numbers}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                ' id="dayconloses">مصروفات نقلات اليوم : <span>{{ total_expenses|arabic_numbers }}</span></h2>
+                {% if win >= 0 %}
+                <h1 style="background: #74C785;">ربح اليوم : <span>{{ win|arabic_numbers }}</span></h1>
+                {% else %}
+                <h1 style="background: #c13333; color: #fff;">خسارة اليوم : <span>{{ win|arabic_numbers }}</span></h1>
+                {% endif %}
+            {% else %}
+                <h2>لم يتم العثور على أرباح لهذا اليوم</h2>
+            {% endif %}
+        </div>
+            </div>
+    <script>
+        const daycom = document.querySelectorAll('#daycom')
+        const dayloses = document.querySelectorAll('#dayloses')
+        const dayforgive = document.querySelectorAll('#dayforgive')
+        const dayconloses = document.querySelectorAll('#dayconloses')
+        const closedetwin = document.getElementById('closedetwin')
+        daycom.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='5%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+            }
+        })
+        dayloses.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='5%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+            }
+        })
+        dayforgive.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='5%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+            }
+        })
+        dayconloses.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='5%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+            }
+        })
+        closedetwin.addEventListener('click',()=>{
+            document.getElementById('detailwindow').style.top='0'
+            document.getElementById('detailwindow').style.visibility='hidden'
+            document.getElementById('detailwindow').style.transform='scale(0)'
+        })
+        window.onload=()=>{
+            document.getElementById('date').focus();
+        }
+        let profitcon = document.getElementById('profitcon')
+        let closeprofit = document.getElementById('closeprofit')
+        closeprofit.onclick = () => {
+            window.location.href = 'home.html'
+        }
+        // Get all date input elements
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+
+        // Get today's date
+        const today = new Date();
+
+        // Loop through each input and set its value to today's date
+        dateInputs.forEach(input => {
+            input.value = today.toISOString().split('T')[0];
+        });
+
+    </script>
+</body>
+</html>

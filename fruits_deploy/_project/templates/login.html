@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static "css/style.css" %}">
+    <title>تسجيل الدخول</title>
+</head>
+<body>
+    <div class="backcon">
+    <img src="{% static "images/tigertech.png" %}" id="tigerLogo">  
+    <div class="imgbox">
+        <img src="{% static "images/login.png" %}">
+    </div>
+    <div class="txt">
+        <h1>مرحبــــــــــــا بكم</h1>
+    </div>
+    <form method="POST">
+    <div class="logcon">
+        <img src="{% static "images/logo.png" %}">
+        <h1>تسجيل الدخول</h1>
+            {% csrf_token %}
+
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <h2 style="color: red;font-size: large;">
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                    {% endif %}
+                    {{ message }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+        <input type="text" id="username" name = 'username' placeholder="اسم المستخدم">
+        <input type="password" name = 'password' placeholder="كلمة المرور">
+        <button type= 'submit'>تسجيل الدخول</button>
+        </form>
+    </div>
+</div>
+<script>
+    window.onload=()=>{
+        document.getElementById('username').focus();
+    }
+</script>
+</body>
+</html>

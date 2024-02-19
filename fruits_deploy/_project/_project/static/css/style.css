@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jomhuria&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Tajawal', sans-serif;
+    user-select:none;
+}
+.backcon{
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    /* background:linear-gradient(270deg,#084413,#5A8030,#74C785) ; */
+    background: linear-gradient(90deg,#726c30,#e8df77,#FEFBD8);
+}
+#tigerLogo{
+    position: absolute;
+    top: 1%;
+    left: 1%;
+    width: 80px;
+}
+.txt{
+    position: absolute;
+    top: 10%;
+    left: 12%;
+    color: #ffffff;
+    font-size: 30px;
+}
+.logcon{
+    position: absolute;
+    width: 55%;
+    height: 100%;
+    right: 0;
+    background-color: #ffffff;
+    border-radius: 50px 0 0 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    box-shadow: 1px 1px 30px #333;
+}
+.logcon img{
+    width: 80px;
+    position: absolute;
+    top: 2%;
+    right: 2%;
+}
+.logcon h1{
+    position: absolute;
+    top: 5%;
+    font-size: 40px;
+    color: #e8df77;
+}
+.logcon input{
+    width: 70%;
+    outline: none;
+    border: none;
+    padding: 5px;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 80px;
+    direction: rtl;
+    border-bottom: 2px solid #dedede;
+}
+.logcon input::placeholder{
+    font-family: 800;
+}
+.logcon button{
+    color: #040404;
+    /* background:linear-gradient(270deg,#084413,#5A8030,#74C785) ; */
+    background: linear-gradient(90deg,#726c30,#e8df77,#FEFBD8);
+    border: none;
+    border-radius: 20px;
+    width: 40%;
+    margin-top: 100px;
+    padding: 10px 0px;
+    font-size: 25px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.5s ease;
+}
+.logcon button:hover{
+    background:#e8df77;
+}
+.imgbox img{
+    position: absolute;
+    width: 35%;
+    bottom: 0;
+    left: 13%;
+    z-index: 10;   
+    transition: 0.5s ease;
+    animation: loganimate 3s ease-in-out infinite;
+}
+@keyframes loganimate {
+    50%{
+        bottom: 5%;
+    }
+}
+@media (max-width:1080px) {
+    .imgbox{display: none;}
+    .txt{display: none;}
+    .backcon{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .logcon{
+        height: 55%;
+        width:100%;
+        border-radius: 20px;
+        position: relative;
+        padding: 30px;
+    }
+    .logcon img{
+        width: 30px;
+    }
+    .logcon h1{
+        font-size: 15px;
+        top: 2%;
+    }
+    .logcon input{
+        width: 80%;
+        margin-bottom: 20px;
+        margin-top: 20px;
+    }
+    .logcon button{
+        width: 90%;
+        margin-top: 50px;
+        padding-top:5px;
+        font-size: 20px;
+    }
+}

@@ -1,0 +1,438 @@
+{% load static %}
+{% load i18n %}
+{% load arabic_numbers %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static "css/main.css" %}">
+    <title>ترحيل النقلة</title>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="mainnav">
+            <div class="main">
+                <img src="{% static "images/logo.png" %}" alt="">
+                <h1>الصفحة الرئيسية</h1>
+            </div>
+        </a>
+        <a href="{% url 'addcontainer' %}" ><i class="fa-solid fa-arrow-left"></i></a>
+    </header>
+    <div id="detailwindow" style="width: 80%;">
+        <i id="closedetwin" class="fa-solid fa-xmark close"></i>
+        <div id="detailcontainer"  style="display: flex; justify-content: center;align-items: center;flex-direction: column;"></div>
+    </div>
+    <input type="hidden" id="container_id" value="{{container.id}}">
+    <div class="detailscon">
+        <h2> اسم العميل: <span>{{container.supplier.name}}</span></h2>
+        <h2>التاريخ : <span>{{container.date|date:"20y/m/d"|arabic_numbers}}</span></h2>
+        <h2>رقم النقلة : <span>{{container.id|arabic_numbers}}</span></h2>
+        <a href="{% url "containeritems" container.id %}" class="btn" id="kindsBTN" style="color: #00C2F4;font-size: 25px; cursor: pointer;"><i class="fa-solid fa-circle-plus"></i>
+        </a>
+        <a href="{% url 'condetails' container.id %}" id="details" class="cardetails" style="text-decoration:none;">تفاصيل النقلة</a>
+    </div>
+    <div class="detailscon detailscon2">
+        <h2>العدد الاساسي : <span>{{container.main_total_count|arabic_numbers}} </span></h2>
+        <h2>العدد المباع : <span>{{container.total_sold_count|arabic_numbers}} </span></h2>
+        <h2>العدد المتبقى : <span>{{container.total_remaining_count|arabic_numbers}}</span></h2>
+        <h2>الوزن : <span>{{container.total_sale_weight|arabic_numbers}}</span></h2>
+        <h2>اجمالى البيع : <span>{{container.total_sale_price|floatformat:2|arabic_numbers}}</span></h2>
+        <h2> اجمالى النقلة : <span>{{container.total_con_price|floatformat:2|arabic_numbers}}</span></h2>
+        {%if container.weight_difference >= 0 %}
+        <h2>فرق الوزن : <span>{{container.weight_difference|arabic_numbers}}</span></h2>
+        {% endif %}
+        {%if container.price_difference >= 0 %}
+        <h2>فرق الفاتورة : <span>{{container.price_difference|arabic_numbers}}</span></h2>
+        {% endif %}    
+    </div>
+    <div class="carKinds">
+        {% for item in container.containeritem_set.all %}
+        <span meta_data="{{item.remaining_count}}" class="carKind" id="carKind">{{item.item.name}} : {{item.remaining_count|arabic_numbers}}</span>
+        {% endfor %}
+    </div>
+    {% for message in messages %}
+    {% if message.tags == 'warning' %}
+    <form method="POST" id="alert" class="messages"> 
+        {% csrf_token %}
+        <h2 {% if message.tags %}{% endif %}>{{message}}</h2>
+        <div>
+            <button name="add_seller">نعم</button>
+            <button onclick="document.getElementById('alert').style.display='none'">لا</button>
+            <input type="hidden" name="new_seller" value="{{ request.session.seller_name }}">
+        </div>
+    </form>
+    {% else %}
+    <ul class="messages">
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    </ul>
+    {% endif %}
+    {% endfor %}
+
+    <button id="dept">رهن</button>
+
+    <form method="POST" class="sellcon" action="{% url 'sellcon' container.id %}">
+        {% csrf_token %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+            <input type="hidden" name="container_id" value="{{ container.id }}">
+            <div class="inputBox">
+                <input name="count" type="number" id="count" min="1" required >
+                <span>العدد</span>
+            </div>
+            <div class="inputBox">
+                <input name="weight" type="number" step="0.01" min="0" required >
+                <span>الوزن</span>
+            </div>
+            <nav class="wraper">
+                <div class="first">
+                    <input name='seller' type="text" id="search_bar" required >
+                    <span>اسم البائع</span>
+                    <i id="arrow-down" class="fa-solid fa-angles-down"></i>
+                </div>
+                <div class="search_res" id="search_res">
+                    <table>
+                        <th></th>
+                            <tbody id="suplliersul">
+                                {% for seller in sellers %}
+                                <tr><td>{{ seller.name }}</td></tr>
+                                {% endfor %}
+                            </table>
+                        </table>
+                    </div>
+                </nav>
+                <input name="dept" type="number" id="deptinp" placeholder="الرهن">
+                <button name="add_sale" >اضافة ترحيل</button>
+                <div class="inputBox">
+                    <input name="price" type="number" step="0.001" min="0" required  id="priceInput">
+                <span>السعر</span>
+            </div>
+            <select name="container_item" id="container_item" style="text-align: center; width: 10%;">
+                <option value="اخنر الصنف" data-price="0">اختر الصنف</option>
+                {% for item in container.containeritem_set.all %}
+                <option value="{{ item.item.name }}" data-price="{{ item.price }}">{{ item.item.name }}</option>
+                {% endfor %}
+            </select>
+            <select name="tool" id="" style="text-align: center; width: 10%;">
+                <option value="اخر">اخر</option>
+                <option value="صناديق كبيرة">صناديق كبيرة</option>
+                <option value="صناديق صغيرة">صناديق صغيرة</option>
+            </select>
+            <input name='date' type="date" placeholder="المنظقة">
+        </form>        
+        <div class="todayscar">
+            <div class="title">
+                <h1>عمليات البيع</h1>
+            </div>
+        <div class="table">
+            <input id="searchbar" type="text" placeholder="ابحث باستخدام اسم البائع">
+            <table>
+                <thead>
+                    <tr>
+                        <th>اسم البائع</th>
+                        <th id="totbtn"><i class="fa-solid fa-arrow-down-short-wide"></i> العدد</th>
+                        <th id="weightbtn" > <i class="fa-solid fa-arrow-down-short-wide"></i> الوزن</th>
+                        <th id="pricebtn"> <i class="fa-solid fa-arrow-down-short-wide"></i> السعر</th>
+                        <th>الرهن</th>
+                        <th>الاجمالى</th>
+                        <th>العدة</th>
+                        <th>الصنف</th>
+                        <th>التاريخ</th>
+                        {% if user.first_name == "شبه مسئول" or user.first_name == "مستخدم متقدم" or user.first_name == 'adminName' %}
+                        <th></th>
+                        {% endif %}
+                        {% if user.first_name == "شبه مسئول" or user.first_name == 'adminName' %}
+                        <th></th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody id="tablesellbody">
+                    {% for sale in sales  %}
+                    <tr>
+                        <td>{{sale.seller}}</td>
+                        <td style="display: none;">{{sale.count}}</td>
+                        <td>{{sale.count|arabic_numbers}}</td>
+                        <td style="display: none;">{{sale.weight}}</td>
+                        <td>{{sale.weight|arabic_numbers}}</td>
+                        <td style="display: none;">{{sale.price}}</td>
+                        <td>{{sale.price|arabic_numbers}}</td>
+                        <td>{{sale.dept|arabic_numbers}}</td>
+                        <td>{{sale.total_sell_price|arabic_numbers}}</td>
+                        <td>{{sale.tool|arabic_numbers}}</td>
+                        <td>{{sale.container_item}}</td>
+                        <td>{{sale.date|date:"20y/m/d"|arabic_numbers}}</td>
+                        {% if user.first_name == "شبه مسئول" or user.first_name == "مستخدم متقدم" or user.first_name == 'adminName' %}
+                        <td><a metadata=' 
+                            <i class="fa-solid fa-clock-rotate-left" style="color: #00F000; font-size:150px;padding:10px ;"></i>
+                            <form method="POST" class="sellcon" action="{% url "saleupdate" id=sale.id %}">
+                            {% csrf_token %}
+                            <ul class="messages">
+                                {% for message in messages %}
+                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                            <nav class="wraper">
+                                <div class="first">
+                                    <input name="seller" value="{{ sale.seller.name }}" type="text" id="search_bar" required >
+                                    <span>اسم البائع</span>
+                                    <i id="arrow-down" class="fa-solid fa-angles-down"></i>
+                                </div>
+                                    <div class="search_res" id="search_res">
+                                        <table>
+                                            <th></th>
+                                            <tbody id="suplliersul">
+                                                {% for seller in sellers %}
+                                                <tr><td>{{ seller.name }}</td></tr>
+                                                {% endfor %}
+                                            </table>
+                                        </table>
+                                    </div>
+                                </nav>
+                                <select name="container_item" id="container_item">
+                                {% for item in sale.container.containeritem_set.all %}
+                                    <option value="{{ item.item.name }}" data-price="{{ item.price }}">{{ item.item.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="hidden" name="container_id" value="{{ sale.container.id }}">
+                            <input type="hidden" name="sale_id" value="{{ sale.id }}">
+                            <div class="inputBox">
+                                <input name="count" id="countwin" type="number" value="{{ sale.count }}" min="1" required >
+                                <span>العدد</span>
+                            </div>
+                            <div class="inputBox">
+                                <input name="weight" type="number" step="0.01" value="{{ sale.weight }}" min="0" required>
+                                <span>الوزن</span>
+                            </div>
+                            <div class="inputBox">
+                                <input name="price" type="number" step="0.001" value="{{ sale.price }}" min="0" id="priceInput"  required>
+                                <span>السعر</span>
+                            </div>
+                            <div class="inputBox">
+                                <input name="dept" type="number" step="0.001" value="{{ sale.dept }}" min="0" id="priceInput"  >
+                                <span>الرهن</span>
+                            </div>
+                            
+                            <select name="tool" id="">
+                                <option value="اخر" {% if sale.tool == "اخر" %} selected {% endif %}>اخر</option>
+                                <option value="صناديق كبيرة" {% if sale.tool == "صناديق كبيرة" %} selected {% endif %}>صناديق كبيرة</option>
+                                <option value="صناديق صغيرة" {% if sale.tool == "صناديق صغيرة" %} selected {% endif %}>صناديق صغيرة</option>
+                            </select>
+                            <input name="date" type="date" value="{{ sale.date|date:"Y-m-d" }}" placeholder="المنظقة">
+                            <input name="dept" type="number" id="deptinp" value="{{ sale.dept }}" placeholder="الرهن">
+                            <button type="submit">تم</button>
+                        </form>' 
+                        id="editcar" class="btn" style="color: #00F000;"><i class="fa-regular fa-pen-to-square"></i></a></td>
+                        {% endif %}
+                        {% if user.first_name == "شبه مسئول" or user.first_name == 'adminName' %}
+                        <td><a metadata='
+                            {% if user.first_name == "شبه مسئول" or user.first_name == "adminName" or user.username == "m" %}
+                            <h1>هل حقاً تريد حذف عملية البيع</h1>
+                            <br>
+                            <i class="fa-regular fa-trash-can" style="color: #ff3333;font-size: 150px;"></i>
+                            <br>
+                            <form method="POST" class="deleteForm" action="{% url "saledelete" id=sale.id %}">
+                                {% csrf_token %}
+                                <a><button class="delete-link" type="submit" name="deleteSale">حذف</button></a>
+                            </form>
+                            {% else %}
+                            <h1>الحذف غير مفعل</h1>
+                        {% endif %}'
+                        id="deletecar" class="btn"  style="color: #FF0000;" ><i class="fa-solid fa-trash"></i></a></td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- البحث عن عمليات البيع باستخدام اسم البائع -->
+    <script src="{% static "js/select.js" %}"></script>
+    <script>
+        const tableBody = document.getElementById('tablesellbody');
+        const sortButton = document.getElementById('weightbtn'); 
+        const pricebtn = document.getElementById('pricebtn');
+        const totbtn = document.getElementById('totbtn'); 
+        let searchbar = document.getElementById('searchbar')
+        let count = document.getElementById('count')
+        let dept =document.getElementById('dept')
+        let deptinp =document.getElementById('deptinp')
+        dept.onclick=()=>{
+            deptinp.style.display='flex'
+            dept.style.display='none'
+            deptinp.focus();
+        }
+        //when the page reloads the input count will focus autoomaticly
+        window.onload=()=>{
+            count.focus();
+        }
+        // Sort function for the third td
+        function sortByWeight(ascending) {
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        // Clone rows to avoid DOM manipulation
+        const sortedRows = rows.slice();
+        sortedRows.sort((row1, row2) => {
+            const weight1 = parseFloat(row1.querySelectorAll('td')[3].textContent.trim());
+            const weight2 = parseFloat(row2.querySelectorAll('td')[3].textContent.trim());
+            return (weight1 - weight2) * (ascending ? 1 : -1);
+        });
+        // Clear and re-append sorted rows
+        tableBody.innerHTML = '';
+        sortedRows.forEach(row => tableBody.appendChild(row));
+        }
+        function sortByPrice(ascending) {
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        // Clone rows to avoid DOM manipulation
+        const sortedRows = rows.slice();
+        sortedRows.sort((row1, row2) => {
+            const weight1 = parseFloat(row1.querySelectorAll('td')[5].textContent.trim());
+            const weight2 = parseFloat(row2.querySelectorAll('td')[5].textContent.trim());
+            return (weight1 - weight2) * (ascending ? 1 : -1);
+        });
+        // Clear and re-append sorted rows
+        tableBody.innerHTML = '';
+        sortedRows.forEach(row => tableBody.appendChild(row));
+        }
+        function sortByTotal(ascending) {
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        // Clone rows to avoid DOM manipulation
+        const sortedRows = rows.slice();
+        sortedRows.sort((row1, row2) => {
+            const weight1 = parseFloat(row1.querySelectorAll('td')[1].textContent.trim());
+            const weight2 = parseFloat(row2.querySelectorAll('td')[1].textContent.trim());
+            return (weight1 - weight2) * (ascending ? 1 : -1);
+        });
+        // Clear and re-append sorted rows
+        tableBody.innerHTML = '';
+        sortedRows.forEach(row => tableBody.appendChild(row));
+        }
+        let isAscending = true;
+        sortButton.addEventListener('click', () => {
+        isAscending = !isAscending;
+        sortByWeight(isAscending);
+        });
+        pricebtn.addEventListener('click', () => {
+        isAscending = !isAscending;
+        sortByPrice(isAscending);
+        });
+        totbtn.addEventListener('click', () => {
+        isAscending = !isAscending;
+        sortByTotal(isAscending);
+        });
+        searchbar.onkeyup=()=>{
+            let filter = searchbar.value.toUpperCase();
+            let tr= tableBody.getElementsByTagName('tr');
+                        for(var i=0; i<tr.length; i++){
+                            let td = tr[i].getElementsByTagName('td')[0];
+                            if(td){
+                                let txtvalue = td.textContent;
+                                if(txtvalue.toLocaleUpperCase().indexOf(filter)>-1){
+                                    tr[i].style.display='';
+                                    
+                                }else{   
+                                    tr[i].style.display='none';
+                                }
+                            }
+                        }
+        }
+        // Ensure the script runs after the document is fully loaded
+
+            // Update the 'price' input field when the selected 'container_item' changes
+            function highlightCarKinds() {
+                const carKindElements = document.querySelectorAll('[id="carKind"]');
+                for (const carKindElement of carKindElements) {
+                    const metaData = carKindElement.getAttribute('meta_data');
+                    if (metaData === '0') {
+                    carKindElement.style.background = '#e60e0e';
+                    } else if (metaData !== null) { // Ensure metaData is present and not 0
+                    carKindElement.style.background = '#00C2F4';
+                    carKindElement.style.color = '#040404';
+                    }
+                }
+            }
+        highlightCarKinds();
+        
+        var priceInput = document.getElementById('priceInput');
+        const selectElement = document.getElementById("container_item"); // Replace with your select element's ID
+        const selectedOptionIndex = localStorage.getItem("selectedOptionIndex");
+        const savedPrice = localStorage.getItem("savedPrice");
+        const containerIDInput = document.getElementById('container_id').value
+        const containerID = localStorage.getItem("containerID");
+        // Set the selected option and price based on stored values (if available)
+        if(containerID == containerIDInput){
+            if (selectedOptionIndex !== null) {
+                selectElement.selectedIndex = selectedOptionIndex;
+                priceInput.value = savedPrice;
+            }
+        // Add an event listener to the select element to track changes and update storage
+            window.addEventListener('load', function () {
+            // Update the 'price' input field when the selected 'container_item' changes
+                var selectedOption = selectElement.options[0];
+                priceInput.value = parseFloat(savedPrice);
+            });
+            selectElement.addEventListener("change", (event) => {
+                const selectedOption = event.target.options[event.target.selectedIndex];
+                const price = selectedOption.getAttribute("data-price");
+                localStorage.setItem("selectedOptionIndex", event.target.selectedIndex);
+                localStorage.setItem("savedPrice", price);
+                priceInput.value = parseFloat(selectedOption.getAttribute('data-price')) || ''; // Update the input field immediately
+            });
+        }
+        else{
+            // Update the 'price' input field when the selected 'container_item' changes
+            localStorage.setItem("containerID", containerIDInput);
+            selectElement.addEventListener("change", (event) => {
+                const selectedOption = event.target.options[event.target.selectedIndex];
+                const price = selectedOption.getAttribute("data-price");
+                localStorage.setItem("savedPrice",price); 
+                localStorage.setItem("selectedOptionIndex", event.target.selectedIndex);
+                priceInput.value = parseFloat(price);
+                window.dispatchEvent(new Event("load"));
+            })
+        }
+        const editcar = document.querySelectorAll('#editcar')
+        const deletecar = document.querySelectorAll('#deletecar')
+        const closedetwin = document.getElementById('closedetwin')
+        editcar.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='30%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+                document.getElementById('countwin').focus();
+            }
+        })
+        deletecar.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='30%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+            }
+        })
+        closedetwin.addEventListener('click',()=>{
+            document.getElementById('detailwindow').style.top='0'
+            document.getElementById('detailwindow').style.visibility='hidden'
+                document.getElementById('detailwindow').style.transform='scale(0)'
+        })
+        // Get all date input elements
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+
+        // Get today's date
+        const today = new Date();
+
+        // Loop through each input and set its value to today's date
+        dateInputs.forEach(input => {
+        input.value = today.toISOString().split('T')[0];
+        });
+
+</script> 
+</body>
+</html>
+

@@ -1,0 +1,337 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jomhuria&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Tajawal', sans-serif;
+    scroll-behavior: smooth;
+    user-select: none;
+}
+.backcon{
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(90deg,#726c30,#e8df77,#FEFBD8);
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: row;
+}
+#tigerLogo{
+    position: absolute;
+    top: 1%;
+    left: 1%;
+    z-index: 105;
+    width: 60px;
+}
+.rightcon{
+    position: relative;
+    width: 15%;
+    height: 100vh;
+    background: #fff;
+    border-radius: 20px 0px 0px 20px ;
+}
+.leftcon{
+    width: 85%;
+    height: 100vh;
+    overflow-y: scroll;
+}
+.rightcon img{
+    width: 40px;
+}
+.righttitle{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    direction: rtl;
+    gap: 5px;
+}.righttitle h2{
+    color: #040404;
+    font-size: 20px;
+}
+.reports,.employee,.money{
+    height: 100vh;
+    overflow-y: scroll;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    flex-direction: column;
+}
+.reports::-webkit-scrollbar,.employee::-webkit-scrollbar,.leftcon::-webkit-scrollbar,.money::-webkit-scrollbar{
+    display: none;
+}
+.table{
+    width: 90%;
+    margin-top: 50px;
+    height: fit-content;
+    border-radius: 20px;
+    background:#fff;
+    display: flex;
+    padding: 10px;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    direction: rtl;
+}
+#searchbar{
+    border-radius: 20px;
+    outline: none;
+    width: 20%;
+    border: 1px solid #040404;
+    text-align: center;
+    margin: 10px 0px;
+    font-size: 20px;
+}
+.table table{width: 100%; }
+.table table thead { 
+    border-radius: 20px;
+    background: linear-gradient(270deg,#5A8030,#74C785);
+}
+.table table thead th{
+    padding: 5px ;
+    color: #fff;
+    border-radius: 5px;
+}
+.table table tbody td {
+    text-align: center;
+    border-bottom: 1px solid #040404;
+    padding: 10px 0;
+}
+.table table tbody tr:hover{
+    background: #dedede;
+}
+.table a{
+    text-decoration: none;
+    color: #fff;
+    border-radius: 20px;
+    background-color: #00C2F4;
+    transition: 0.5s ease-out;
+    padding: 5px  20px;
+    cursor: pointer;
+}
+.table a:hover{
+    background-color:rgb(72, 72, 255);
+}
+.rightcon ul{
+    margin-top: 250px;
+    list-style: none;
+    width: 100%;
+    direction: rtl;
+}
+.rightcon a{text-decoration: none; color: #040404;transition: 0.5s ease;}
+.rightcon ul li{
+    width: 100%;
+    margin: 20px 0px;
+    font-size: 20px;
+    padding: 5px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.5s ease-in;
+}
+.rightcon ul li:hover{
+    background: #e8df77;
+}
+.rightcon ul #logout{
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+}
+.addUser{
+    width: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 10px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #040404;
+}
+.addUser input,.addUser select{
+    width: 20%;
+    padding: 5px;
+    border: 1px solid #040404;
+    outline: none;
+    border-radius: 20px;
+    font-size: 15px;
+    text-align: center;
+    font-weight: 600;
+}
+.addUser button{
+    color: white;
+    background: #726c30;
+    border-radius: 20px;
+    border: none;
+    width: 15%;
+    padding: 5px 0;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.5s ease-in-out;
+}
+.addUser button:hover{
+    background: #e8df77;
+    color: #040404;
+}
+#filterslist{
+    position: absolute;
+    top: 2%;
+    list-style: none;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0);
+    width: 15%;
+    text-align: center;
+    border-radius: 10px 0 10px 10px ;
+    margin-right: 250px;
+    display: none;
+    transition: 0.4s ease-in-out;
+}
+#filterslist li{
+    border-bottom: 1px solid #040404;
+    padding: 10px 0;
+    position: relative;
+    color: #040404;
+    font-size: 18px;
+    transition: 0.3s ease-out;
+}
+#filterslist li i{
+    position: absolute;
+    left: 10px;
+    color:#625d5d ;
+}
+#filterslist li:hover{
+    background: #e8df77;
+    cursor: pointer;
+}
+.messages {
+    list-style-type: none;
+    z-index: 10000;
+}
+.success {
+    background-color: #4CAF50;
+    color: white;
+    position: fixed;
+    top: 30px;
+    left: 40%;
+    padding: 10px 100px;
+    border-radius: 20px;
+    font-size: 25px;
+    animation-name: fadeOut;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+    animation-delay: 2s;
+}
+.success::before {
+    content: "✅";
+    margin-right: 10px;
+}
+.warning {
+    background-color: #f44336;
+    color: white;
+    position: fixed;
+    top: 30px;
+    left: 35%;
+    padding: 10px 100px;
+    border-radius: 20px;
+    font-size: 20px;
+    animation-name: fadeOut;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+    animation-delay: 2s;
+}
+.error {
+    background-color: #f44336;
+    color: white;
+    position: fixed;
+    top: 30px;
+    left: 35%;
+    padding: 10px 100px;
+    border-radius: 20px;
+    font-size: 20px;
+    animation-name: fadeOut;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+    animation-delay: 2s;
+}
+
+.warning::before{
+    content: "⚠️";
+    margin-right: 10px;
+}
+
+.error::before {
+    content: "❌";
+    margin-right: 10px;
+} 
+#detailwindow{
+    position: fixed;
+    top: 0;
+    width: 80%;
+    min-height: 30vh;
+    height: fit-content;
+    z-index: 1009;
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 10px;
+    box-shadow: 1px 1px 1000px #625D5D;
+    visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    direction: rtl;
+    transform:scale(0);
+    transition: 0.3s ease-in-out;
+
+}
+.dettype2{
+    color: #fff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 15px;
+    font-size: 20px;
+    cursor: pointer;
+}
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        display: none;
+    }
+}
+#detailwindow table{width: 100%;}
+#closedetwin{
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 30px;
+    cursor: pointer;
+    color: #625D5D;
+    padding: 5px;
+    border-radius: 50%;
+    transition: 0.5s ease;
+}
+#closedetwin:hover{
+    color: #c10000;
+}
+@media (max-width:800px) {
+    .rightcon{width: 20%;}
+    #tigerLogo{width: 50px;}
+    .leftcon{width: 80%;}
+    .rightcon .righttitle h2{font-size: 10px; }
+    .rightcon img{width: 20px;}
+    .rightcon ul li{font-size: 15px;}
+    .table table{width: 100%;transform: scale(0.9);}
+    .table table th{font-size: 10px;}
+    .table table tbody tr{font-size: 10px;font-weight: 600;}
+    #searchbar{width: 80%;}
+    #filterslist{margin-right: 0; width: 80%;z-index: 150000;}
+    .rightcon ul #logout{bottom: 100px;}
+    .addUser input, .addUser select,.addUser button {width: 80%;font-size: 10px;font-weight: 600;}
+    .addUser{flex-direction: column;}
+}

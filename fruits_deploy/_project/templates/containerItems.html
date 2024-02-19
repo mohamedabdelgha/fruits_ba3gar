@@ -1,0 +1,207 @@
+{% load static %}
+{% load i18n %}
+{% load arabic_numbers %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static "css/main.css" %}">
+    <title>اضف اصناف للنقلة</title>
+</head>
+<body>
+        <header>
+            <a href="{% url 'home' %}" class="mainnav">
+                <div class="main">
+                    <img src="{% static "images/logo.png" %}" alt="">
+                    <h1>اضف صنف النقلة</h1>
+                </div>
+            </a>
+        </header>
+        <div id="detailwindow" style="width: 50%;">
+            <i id="closedetwin" class="fa-solid fa-xmark close" ></i>
+            <div id="detailcontainer" style="display: flex; justify-content: center;align-items: center;flex-direction: column;"></div>
+        </div>
+        <div class="window" id="" style="display: flex;top: 10%;">
+        <a href="{% url "addcontainer" %}" id="closekinds" class="fa-solid fa-xmark close" style='text-decoration:none;'></a>
+        <h2>اضافة اصناف للنقلة</h2>
+
+        {% for message in messages %}
+        <ul class="messages">
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        </ul>
+        {% endfor %}
+    
+        <form method ="POST"  class="addcar" action="{% url "containeritems" container.id %}" style="width: 100%;background: transparent;box-shadow: none;margin-top: -50px;">
+            {% csrf_token %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            <div class="iteminput">
+                <nav class="wraper">
+                    <div class="first">
+                        <input name='item_name' type="text" id="search_bar" required >
+                        <span>الصنف</span>
+                        <i id="arrow-down" class="fa-solid fa-angles-down"></i>
+                    </div>
+                    <div class="search_res" id="search_res">
+                        <table>
+                            <th></th>
+                            <tbody id="suplliersul">
+                                {% for item in items %}
+                                <tr><td>{{ item.name }}</td></tr>
+                                {% endfor %}
+                            </table>
+                        </table>
+                    </div>
+                </nav>
+                <input type="number" name="count" step="0.01" id="" placeholder="العدد" required min="1">
+                <input type="number" name="price" step="0.01" id="" placeholder="سعر البيع" required min="0">
+                <button name="add_container_item" id="addcon">اضافة</button>
+                <input type="number" name="weight" step="0.01" id="" placeholder="وزن الصنف" min="0">
+                <select name="tool" id="">
+                    <option value="اخر">اخر</option>
+                    <option value="صناديق صغيرة">صناديق صغيرة</option>
+                    <option value="صناديق كبيرة">صناديق كبيرة</option>
+                </select>
+            </div>
+        </form>
+        <a href="{% url "sellcon" container.id %} "  class="type" id="sellbtn">ترحيل النقلة</a>
+        <a href="{% url "items" %} "  class="type" id="sellbtn">إضافة صنف جديد</a>
+    <table>
+        <thead>
+            <tr>
+                <th>الصنف</th>
+                <th>العدد</th>
+                <th>العددالمتبقي</th>
+                <th>العدة</th>
+                <th>السعر</th>
+                <th>وزن الصنف</th>
+                <th> اجمالي السعر</th>
+                {% if user.first_name == "شبه مسئول" or user.first_name == "مستخدم متقدم" or user.first_name == 'adminName' %}
+                <th></th>
+                {% endif %}
+                {% if user.first_name == "شبه مسئول" or user.first_name == 'adminName' %}
+                <th></th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody id="tablebody">
+            {% for container_item in container.containeritem_set.all %}
+            <tr>
+                <td>{{ container_item.item.name }}</td>
+                <td>{{ container_item.count|arabic_numbers }}</td>
+                <td>{{ container_item.remaining_count|arabic_numbers }}</td>
+                <td>{{ container_item.tool }}</td>
+                <td>{{ container_item.price|arabic_numbers }}</td>
+                <td>{{ container_item.item_weight|arabic_numbers }} كيلو جرام </td>
+                <td>{{ container_item.total_item_price|arabic_numbers }}</td>
+                {% if user.first_name == "شبه مسئول" or user.first_name == "مستخدم متقدم" or user.first_name == 'adminName' %}
+                <td><a metadata='
+                    {% if user.first_name == "شبه مسئول" or user.first_name == "مستخدم متقدم" or user.first_name == "adminName" %}
+                    <h2>تعديل اصناف النقلة</h2>
+                    <form method="POST" class="addcar" action="{% url "containeritemsupdate" container_item.id %}" style="width: 100%;background: transparent;box-shadow: none;margin-top: -50px;">
+                        {% csrf_token %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    
+                        <select name="item_name">
+                            <option value="">أختر الصنف</option>
+                            {% for item in items %}
+                                <option value="{{ item.name }}" {% if item.name == container_item.item.name %}selected{% endif %}>{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                    
+                        <input type="number" name="count" step="0.01" id="" placeholder="العدد" required min="1" oninvalid="this.setCustomValidity("يرجى ادخال العدد")" value="{{ container_item.count }}">
+                        
+                        <select name="tool" id="">
+                            <option value="اخر" {% if container_item.tool == "اخر" %}selected{% endif %}>اخر</option>
+                            <option value="صناديق صغيرة" {% if container_item.tool == "صناديق صغيرة" %}selected{% endif %}>صناديق صغيرة</option>
+                            <option value="صناديق كبيرة" {% if container_item.tool == "صناديق كبيرة" %}selected{% endif %}>صناديق كبيرة</option>
+                        </select>
+                        <input value="{{ container_item.price }}" type="number" name="price" step="0.01" id="" placeholder="سعر البيع" >
+                        <input type="number" name="weight" step="0.01" id="" placeholder="وزن الصنف" min="0" value="{{ container_item.item_weight }}">            
+                        <button id="addcon">تحديث</button>
+                    </form>
+            </div>
+            {% else %}
+            <h1>التعديل غير مفعل</h1>
+            {% endif %}
+            
+            ' class="btn" id="editcar" style="color: #00F000;"><i class="fa-regular fa-pen-to-square"></i></a></td>
+                {% endif %}
+                {% if user.first_name == "شبه مسئول" or user.first_name == 'adminName' %}
+                <td><a metadata='
+                    {% if user.first_name == "شبه مسئول" or user.first_name == "adminName" %}
+                    <h1>حذف صنف النقلة</h1>
+                    </div>
+                    </a>
+                    </header>
+                    <h1>هل حقاً تريد حذف الصنف من النقلة</h1>
+                    <br>
+                    <i class="fa-regular fa-trash-can" style="color: #ff3333;font-size: 150px;"></i>
+                    <br>
+                    <form method="POST" class="deleteForm" action="{% url "containeritemdelete" id=container_item.id %}">
+                        {% csrf_token %}
+                        <a><button class="delete-link" name="containerItemDelete"  type="submit">حذف</button></a>
+                    </form>
+                    {% else %}
+                    <h1>الحذف غير مفعل</h1>
+                {% endif %}' id="deletecar" class="btn"  style="color: #FF0000;" ><i class="fa-solid fa-trash"></i></a></td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script src="{% static "js/select.js" %}"></script>
+<script>
+        window.onload=()=>{
+            document.getElementById('search_bar').focus();
+        }
+        const editcar = document.querySelectorAll('#editcar')
+        const deletecar = document.querySelectorAll('#deletecar')
+        const closedetwin = document.getElementById('closedetwin')
+        editcar.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='30%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+            }
+        })
+        deletecar.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='30%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+            }
+        })
+        closedetwin.addEventListener('click',()=>{
+            document.getElementById('detailwindow').style.top='0'
+            document.getElementById('detailwindow').style.visibility='hidden'
+                document.getElementById('detailwindow').style.transform='scale(0)'
+        })
+        // Get all date input elements
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+
+        // Get today's date
+        const today = new Date();
+
+        // Loop through each input and set its value to today's date
+        dateInputs.forEach(input => {
+        input.value = today.toISOString().split('T')[0];
+        });
+
+</script>
+</body>
+</html>

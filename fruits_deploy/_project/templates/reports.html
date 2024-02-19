@@ -1,0 +1,258 @@
+{% load static %}
+{% load i18n %}
+{% load arabic_numbers %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static "css/reports.css" %}">
+    <title>التقارير</title>
+</head>
+<body>
+    <div id="detailwindow">
+        <i id="closedetwin" class="fa-solid fa-xmark close" ></i>
+        <div id="detailcontainer" style="width: 100%; display: flex; justify-content: center;align-items: center;flex-direction: column;"></div>
+    </div>
+<div class="backcon">
+    <img src="{% static "images/tigertech.png" %}" id="tigerLogo">  
+    <div class="leftcon">
+        <div class="reports" id="reports">
+            <h2>التقارير</h2>
+            <div class="table" style="width: 95%;">
+                <a id="filters">الفلاتر</a>
+                <ul id="filterslist">
+                    <li id="option" metadata="الفلاتر">جميع التقارير <i class="fa-solid fa-caret-left"></i></li>
+                    <li id="option" metadata="صنف">صنف <i class="fa-solid fa-caret-left"></i></li>
+                    <li id="option" metadata="نقلة">نقلة <i class="fa-solid fa-caret-left"></i></li>
+                    <li id="option" metadata="عملاء">عميل <i class="fa-solid fa-caret-left"></i></li>
+                    <li id="option" metadata="بائعين">بائع <i class="fa-solid fa-caret-left"></i></li>
+                    <li id="option" metadata="تحصيل">تحصيل <i class="fa-solid fa-caret-left"></i></li>
+                    <li id="option" metadata="بيع">بيع <i class="fa-solid fa-caret-left"></i></li>
+                    <li id="option" metadata="مصروف">مصروف <i class="fa-solid fa-caret-left"></i></li>
+                </ul>
+                <input id="searchbar" type="date" >
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نوع العملية</th>
+                            <th>اسم المستخدم</th>
+                            <th>التاريخ</th>
+                            <th>الوقت</th>
+                            <th colspan="3">التفاصيل</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablebody1">
+                        {% for action in recent_actions %}
+                        <tr>
+                            <td style="display: none;" >{{action.action_sort}}</td>
+                            <td>{{action.action_type}}</td>
+                            <td> {{action.user}}</td>
+                            <td style="display: none;" >{{action.timestamp|date:"20y-m-d"}}</td>
+                            <td>{{action.timestamp|date:"20y/m/d"|arabic_numbers}}</td>
+                            <td style="display: none;">{{action.timestamp|time}}</td>
+                            <td>{{action.timestamp|time|arabic_numbers}}</td>
+                            <td colspan="3">{{action.model_affected}} </td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="employee" id="employee">
+            <h2>المستخدمين</h2>
+            <div class="table" style="width: 90%;">
+
+                <form method="POST" class="addUser">
+                    {% csrf_token %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                    <input type="text" name="username" id="name" placeholder="اسم المستخدم" required >
+                    <input type="text" name="password" id="name" placeholder="كلمة المرور" required >
+                    <select name="firstname" id="gender">
+                        <option value="شبه مسئول">شبه مسئول</option>
+                        <option value="مستخدم متقدم">مستخدم متقدم</option>
+                        <option value="مستخدم عادي">مستخدم</option>
+                    </select>
+                    <button type="submit">اضافة مستخدم</button>
+                </form>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم المستخدم</th>
+                            <th>الحالة</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablebody">
+                        {% for user in users  %}
+                        <tr>
+                            <td>{{user.username}}</td>
+                            <td>{{user.first_name}}</td>
+                            <td style="display: none;"></td>
+                            <td style="display: none;"></td>
+                            {% if user.first_name != "adminName" %}
+                            <td><a metadata='
+                                <h1>هل حقاً تريد حذف المستخدم</h1>
+                                <br>
+                                <i class="fa-regular fa-trash-can" style="color: #ff3333;font-size: 150px;"></i>
+                                <br>
+                                <form method="POST" action="{% url "userdelete" user.id %}">
+                                    {% csrf_token %}
+                                    <a class="dettype" style="background-color: #c10;"><button style="background-color: #c10;" type="submit">حذف</button></a>
+                                </form>
+                                '
+                                style="background-color: #c10;" class="dettype"  id="deletecar">حذف</a></td>
+                            {% else %}
+                            <td></td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="rightcon">
+        <div class="righttitle">
+            <img src="{% static "images/logo.png" %}">
+            <h2>صفحه المسئـول</h2>
+        </div>
+        <ul>
+            <a href="#reports"><li>التقارير</li></a>
+            <a href="#employee"><li>المستخدمين</li></a>
+            <a href="{% url 'home' %}" id="logout"><li>عودة</li></a>
+        </ul>
+    </div>
+</div>
+<script>
+    let tablebody = document.getElementById('tablebody1')
+    let searchbar = document.getElementById('searchbar')
+    let filterslist = document.getElementById('filterslist')
+    let filters = document.getElementById('filters')
+    let options = document.querySelectorAll('#option')
+    searchbar.addEventListener('change',()=>{
+        const reportDate = document.getElementById('searchbar').value
+        console.log(reportDate)
+        let filter = searchbar.value.toUpperCase();
+        let tr= tablebody.getElementsByTagName('tr');
+                for(var i=0; i<tr.length; i++){
+                    let td = tr[i].getElementsByTagName('td')[3];
+                    if(td){
+                        let txtvalue = td.textContent;
+                        if(txtvalue.toLocaleUpperCase().indexOf(filter)>-1){
+                            tr[i].style.display='';
+                            
+                        }else{   
+                            tr[i].style.display='none';
+                        }
+                    }
+                }
+    })
+    filters.onclick=()=>{
+        filters.style.backgroundColor = '#fff'
+        filters.style.color = '#040404'
+        filters.style.border = '1px solid #040404'
+        filterslist.style.display = filterslist.style.display === "none" ? "block" : "none";
+    }
+    options.forEach((option)=>{
+        const medata = option.getAttribute('metadata');
+        option.onmouseenter=()=>{
+            if(medata=='الفلاتر'){
+                let tr= tablebody.getElementsByTagName('tr');
+                for(var i=0; i<tr.length; i++){
+                            tr[i].style.display='';
+                }
+            }else{
+                let tr= tablebody.getElementsByTagName('tr');
+                for(var i=0; i<tr.length; i++){
+                    let td = tr[i].getElementsByTagName('td')[0];
+                    if(td){
+                        let txtvalue = td.textContent;
+                        if(txtvalue.toLocaleUpperCase().indexOf(medata)>-1){
+                            tr[i].style.display='';
+                            
+                        }else{   
+                            tr[i].style.display='none';
+                        }
+                    }
+                }
+            }
+        }
+        option.onclick=()=>{
+            if(medata=='الفلاتر'){
+                let tr= tablebody.getElementsByTagName('tr');
+                for(var i=0; i<tr.length; i++){
+                            tr[i].style.display='';
+                }
+                filterslist.style.display = "none"
+            }else{
+                let tr= tablebody.getElementsByTagName('tr');
+                for(var i=0; i<tr.length; i++){
+                    let td = tr[i].getElementsByTagName('td')[0];
+                    if(td){
+                        let txtvalue = td.textContent;
+                        if(txtvalue.toLocaleUpperCase().indexOf(medata)>-1){
+                            tr[i].style.display='';
+                            
+                        }else{   
+                            tr[i].style.display='none';
+                        }
+                    }
+                }
+                filterslist.style.display = "none"
+            }
+            filters.innerHTML= 'الفلتر : '+medata
+            filters.style.backgroundColor = '#00C2F4'
+        filters.style.color = '#fff'
+        filters.style.border = 'none'
+        }
+    })
+    // Get all date input elements
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+
+    // Get today's date
+    const today = new Date();
+
+    // Loop through each input and set its value to today's date
+    dateInputs.forEach(input => {
+    input.value = today.toISOString().split('T')[0];
+    });
+        const more = document.querySelectorAll('#more')
+        const closedetwin = document.getElementById('closedetwin')
+        more.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='30%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+            }
+        })
+        // Loop through each input and set its value to today's date
+        dateInputs.forEach(input => {
+        input.value = today.toISOString().split('T')[0];
+        });
+        const deletecar = document.querySelectorAll('#deletecar')
+        deletecar.forEach((btn)=>{
+            btn.onclick=()=>{
+                const metadata = btn.getAttribute('metadata')
+                document.getElementById('detailwindow').style.top='30%'
+                document.getElementById('detailwindow').style.visibility='visible'
+                document.getElementById('detailwindow').style.transform='scale(1)'
+                document.getElementById('detailcontainer').innerHTML=metadata
+            }
+        })
+        closedetwin.addEventListener('click',()=>{
+            document.getElementById('detailwindow').style.top='0'
+            document.getElementById('detailwindow').style.visibility='hidden'
+            document.getElementById('detailwindow').style.transform='scale(0)'
+        })
+</script>
+</body>
+</html>
